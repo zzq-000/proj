@@ -1,3 +1,0 @@
-[submodule "third_party/cm256"]
-	path = third_party/cm256
-	url = https://github.com/f4exb/cm256cc.git

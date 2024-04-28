@@ -1,0 +1,9 @@
+[submodule "third_party/cm256"]
+	path = third_party/cm256
+	url = https://github.com/catid/cm256
+[submodule "third_party/googletest"]
+	path = third_party/googletest
+	url = https://github.com/google/googletest
+[submodule "third_party/glog"]
+	path = third_party/glog
+	url = https://github.com/google/glog

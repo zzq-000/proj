@@ -4,7 +4,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "Packet.h"
+
+constexpr int dataLen = 1000;
+struct Packet {
+    int len;
+    uint8_t data[dataLen];
+};
 int main() {
     int sockfd;
     struct sockaddr_in servaddr;

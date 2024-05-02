@@ -1,5 +1,23 @@
 
 
-add_executable(test_ test.cc)
-target_include_directories(test_ PUBLIC ${CMAKE_SOURCE_DIR}/src/FEC)
-target_link_libraries(test_ gtest gtest_main fec pthread)
+
+
+
+include_directories(${CMAKE_SOURCE_DIR}/src/FEC)
+include_directories(${CMAKE_SOURCE_DIR}/src/transport)
+include_directories(${CMAKE_SOURCE_DIR}/src/util)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/glog/src)
+
+
+add_executable(test test.cc)
+target_link_libraries(test glog::glog gtest gtest_main fec pthread)
+
+add_executable(client client.cc)
+target_link_libraries(client util cm256 glog fec)
+
+add_executable(server server.cc)
+target_link_libraries(server util cm256 glog fec)
+
+
+add_executable(test_packet test_packet.cc)
+target_link_libraries(test_packet glog)

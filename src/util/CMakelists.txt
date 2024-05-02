@@ -1,0 +1,2 @@
+file(GLOB UTIL_SOURCES "*.cc")
+add_library(util SHARED ${UTIL_SOURCES})

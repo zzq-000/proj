@@ -1,49 +1,27 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
-constexpr int dataLen = 1000;
-struct Packet {
-    int len;
-    uint8_t data[dataLen];
-};
-int main() {
-    int sockfd;
-    struct sockaddr_in servaddr;
 
-    // 创建 socket 文件描述符
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        std::cerr << "Socket creation failed" << std::endl;
-        return 1;
-    }
+#include "glog/logging.h"
+#include "udp_socket.hh"
+#include "sender.h"
 
-    memset(&servaddr, 0, sizeof(servaddr));
+using namespace std;
+// constexpr int dataLen = 1000;
+// struct Packet {
+//     uint16_t len;
+//     uint8_t data[dataLen];
+// };
 
-    // 服务器信息
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(8080);
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    // 发送消息
-    // const char *message = "Hello, Server!";
-    while(true) {
-        Packet p;
-        p.len = 10;
-        for (int i = 0; i < p.len; i++) {
-            p.data[i] = i;
-        }
-        p.len = htonl(p.len);
-        // uint16_t x = 10;
-        // std::cin >> x ;
-        // x = htons(x);
-        sendto(sockfd, (void*)&p, sizeof(p), MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
-        std::cout << "Message sent to server" << std::endl;
-        break;
-    }
-
-    close(sockfd);
+int main(int argc, char** argv) {
+    google::InitGoogleLogging(argv[0]);
+     FLAGS_log_dir = "./"; 
+    Address address("127.0.0.1", 8000);
+    string filename;
+    cin >> filename;
+    Sender s(filename, Fec_type::FEC_2_1, address);
+    // UDPSocket client_socket;
+    s.SendTo(address);
     return 0;
 }

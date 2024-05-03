@@ -18,14 +18,26 @@ constexpr int FECMaxDataLen = MTU - IPHeader - UDPHeader
 size_t GetAlignedSize(int size, int align) {
     return (size / align + (size % align > 0)) * align;
 }
+
+class FeedbackPacket{
+
+
+};
+
 class Packet{
 private:
     uint64_t seq_num;
     uint16_t len;
     
     // 最后1bit表示eof
+
+    // 倒数第2bit表示start      
+    //                  proberesp      probereq    feedback  fec_type strat eof
+    // [1 1 1 1 1 ....      1              1         1        1 1 1 1  1     1]   len = 48
     uint8_t header[6];
-    uint8_t data[GET_ALIGNED_SIZE_DELETE_EXTRA(FECMaxDataLen - GET_ALIGNED_SIZE(sizeof(seq_num) + sizeof(len) + sizeof(header), sizeof(uint64_t)), sizeof(uint64_t))];
+    union {
+        uint8_t data[GET_ALIGNED_SIZE_DELETE_EXTRA(FECMaxDataLen - GET_ALIGNED_SIZE(sizeof(seq_num) + sizeof(len) + sizeof(header), sizeof(uint64_t)), sizeof(uint64_t))];
+    };
 
 
 public:
@@ -60,6 +72,12 @@ public:
     void SetSequenceNum(uint64_t seq) {
         seq_num = seq;
     }
+    bool IsStart() const {
+        return (header[5] & 2) == 1;
+    }
+    void SetStart() {
+        header[5] |= 2;
+    }
     bool IsEOF() const {
         return (header[5] & 1) == 1;
     };
@@ -67,8 +85,12 @@ public:
         header[5] |= 1;
     }
 
+    static uint8_t GetHeaderSize() {
+        return sizeof(seq_num) + sizeof(len) + sizeof(header);
+    }
+
     template<typename T>
-    static std::vector<Packet> GeneratePackets(T* buffer, int len) {
+    static std::vector<Packet> GeneratePackets(T* buffer, int len, int start_seq = 0) {
         int size = (len / sizeof(data) + (len % sizeof(data) > 0));
         std::vector<Packet> rtn(size);
         uint8_t* ptr = (uint8_t*)buffer;
@@ -80,8 +102,9 @@ public:
                 rtn[i].SetContent(ptr, len % sizeof(data));
                 rtn[i].SetEOF();
             }
-            rtn[i].SetSequenceNum(i);
+            rtn[i].SetSequenceNum(i + start_seq);
         }
+        rtn[0].SetStart();
         return rtn;
     } 
 };

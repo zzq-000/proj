@@ -16,12 +16,12 @@ using namespace std;
 
 int main(int argc, char** argv) {
     google::InitGoogleLogging(argv[0]);
-     FLAGS_log_dir = "./"; 
+    FLAGS_log_dir = "./"; 
     Address address("127.0.0.1", 8000);
     string filename;
     cin >> filename;
-    Sender s(filename, Fec_type::FEC_2_1, address);
+    Sender s(filename, Fec_type::FEC_2_1, address, 5 * 1024 * 1024);
     // UDPSocket client_socket;
-    s.SendTo(address);
+    s.KeepSend();
     return 0;
 }

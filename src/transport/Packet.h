@@ -84,9 +84,20 @@ public:
     void SetEOF() {
         header[5] |= 1;
     }
-
+    int PacketSize() const {
+        return GetHeaderSize() + len;
+    }
     static uint8_t GetHeaderSize() {
         return sizeof(seq_num) + sizeof(len) + sizeof(header);
+    }
+    static Packet GenerateRandomPacket() {
+        Packet p;
+        p.seq_num = rand() % 1000 + 100;
+        p.len = rand() % sizeof(data);
+        for (int i = 0; i < p.len; ++i) {
+            p.data[i] = rand() % 10000 + rand() % 9999;
+        }
+        return p;
     }
 
     template<typename T>

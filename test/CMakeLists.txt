@@ -21,3 +21,6 @@ target_link_libraries(server util cm256 glog fec)
 
 add_executable(test_packet test_packet.cc)
 target_link_libraries(test_packet glog)
+
+add_executable(test_fc test_fc.cc)
+target_link_libraries(test_fc glog util)

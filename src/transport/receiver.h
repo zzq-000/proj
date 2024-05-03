@@ -22,7 +22,20 @@ public:
             LOG(FATAL) << "could not open the file: " << filename;
         }
     };
+    void KeepReceive() {
+        while (true) {
+            auto [Address, message] = sock_fd.recvfrom();
+            Packet* data = (Packet*)(message.value().data());
 
+            std::string s(data->GetContent(), data->GetContent() + data->GetContentLen());
+            // file << s;
+            if (data->IsEOF()) {
+                file.close();
+                break;
+            }
+            LOG(INFO) << "received a packet, sequence: " << data->GetSequenceNum() << "; size: " << data->PacketSize();
+        }
+    }
     void Receive() {
         while (true)
         {
@@ -40,23 +53,6 @@ public:
         LOG(INFO) << "successfully received a file";
         
     }
-    // void SendTo(Address address) {
-    //     if (file.eof()) {
-    //         file.clear();
-    //         file.open(file_name);
-    //     }
-    //     std::vector<char> contents((std::istreambuf_iterator<char>(file)),
-    //                                 std::istreambuf_iterator<char>());
-    //     file.close();
-    //     has_send = true;
-
-    //     std::vector<Packet> datagrams = Packet::GeneratePackets<char>(contents.data(), contents.size());
-
-    //     for (int i = 0; i < datagrams.size(); ++i) {
-    //         sock_fd.sendto(server_address, (char*)&datagrams[i]);
-    //     }
-    // }
-
     ~Receiver() {};
 
 };

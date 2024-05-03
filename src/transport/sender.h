@@ -4,6 +4,7 @@
 #include "udp_socket.hh"
 #include "FecCodec.h"
 #include "Packet.h"
+#include "flow_controller.h"
 class Sender{
 private:
     Address server_address;
@@ -13,16 +14,33 @@ private:
     Fec_type fec_type;
     std::string file_name;
     bool has_send;
+    FlowController fc;
 public:
-    Sender(std::string filename, Fec_type type, Address& address)
-        : file_name(filename), fec_type(type), server_address(address), has_send(false) {
+    Sender(std::string filename, Fec_type type, Address& address, int rate)
+        : file_name(filename), fec_type(type), server_address(address), has_send(false), fc(rate) {
         file.open(filename);
         if (file.fail()) {
-            LOG(FATAL) << "could not open the file: " << filename;
+            LOG(ERROR) << "could not open the file: " << filename;
         }
     };
+    void KeepSend() {
+        int start_seq = rand() % 1000 + 10;
+        Packet p = Packet::GenerateRandomPacket();
+        p.SetStart();
+        p.SetSequenceNum(start_seq++);
+        do {
+            if (fc.CanSend(p.PacketSize())) {
+                sock_fd.sendto(server_address, (void*)&p, p.PacketSize());
+                LOG(INFO) << "send a packet, seqence: " << p.GetSequenceNum() << "; size: " << p.PacketSize();
+                
+                p = Packet::GenerateRandomPacket();
+                p.SetSequenceNum(start_seq++);
+            }
+        }while(true);
+        
 
-    void SendTo(Address address) {
+    }
+    void SendTo() {
         if (file.eof()) {
             file.clear();
             file.open(file_name);
@@ -43,9 +61,6 @@ public:
         // std::string_view v();
         for (int i = 0; i < datagrams.size(); ++i) {
             sock_fd.sendto(server_address, &datagrams[i], sizeof(Packet));
-            
-            
-          ;
         }
     }
 

@@ -27,6 +27,18 @@ public:
     inline uint8_t* GetPayload() const {
         return (uint8_t*)payload;
     }
+    static Datagram RandomDatagram() {
+        Datagram d;
+        uint16_t len = rand() % dataLen;
+        d.SetPayloadLen(len);
+        uint8_t* data = new uint8_t[len];
+        for (int i = 0; i < len; ++i) {
+            data[i] = rand() % UINT8_MAX;
+        }
+        d.SetPayload(data, len);
+        return d;
+        
+    }
     static void HostToNetwork(Datagram* d) {
         d->SetPayloadLen(htons(d->GetPayloadLen()));
     } 

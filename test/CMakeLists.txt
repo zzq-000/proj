@@ -29,7 +29,11 @@ target_link_libraries(test_fc glog util)
 
 add_executable(epoll epoll.cc)
 add_executable(epoll_client epoll_client.cc)
-target_link_libraries(epoll_client util glog::glog fec cm256)
+target_link_libraries(epoll_client util glog::glog fec)
 
 add_executable(server2.0 server2.0.cc)
-target_link_libraries(server2.0 util glog::glog fec cm256)
+target_link_libraries(server2.0 util glog::glog fec)
+
+
+add_executable(test_blockFecCodec test_blockFecCodec.cc)
+target_link_libraries(test_blockFecCodec gtest_main fec glog)

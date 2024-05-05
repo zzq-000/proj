@@ -6,7 +6,7 @@
 class FecCodec{
 
 public:
-    virtual void Encode(std::vector<FecDatagram*>& buffers, Fec_type type) = 0;
+    virtual bool Encode(std::vector<FecDatagram*>& buffers, Fec_type type) = 0;
     virtual bool Decode(std::vector<FecDatagram*>& buffers, Fec_type type) = 0;
 
     virtual ~FecCodec() {};
@@ -23,7 +23,7 @@ public:
             LOG(ERROR) << "init error";
         }
     };
-    void Encode(std::vector<FecDatagram*>& buffers, Fec_type type) override;
+    bool Encode(std::vector<FecDatagram*>& buffers, Fec_type type) override;
     bool Decode(std::vector<FecDatagram*>& buffers, Fec_type type) override;
     ~BlockFecCodec() {};
 };

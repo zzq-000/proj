@@ -4,9 +4,12 @@
 #include <glog/logging.h>
 #include "Datagram.h"
 enum class Fec_type{
-    FEC_2_1,
-    FEC_3_1,
-    FEC_3_2
+    FEC_2_1 = 1,
+    FEC_3_1 = 2,
+    FEC_3_2 = 3,
+    FEC_4_1 = 4,
+    FEC_4_2 = 5,
+    FEC_4_3 = 6,
 };
 
 struct Fec_info{
@@ -25,6 +28,12 @@ Fec_info GetInfoAboutFEC(Fec_type t) {
         return {3, 1, "FEC_3_1"};
     case Fec_type::FEC_3_2 :
         return {3, 2, "FEC_3_2"};
+    case Fec_type::FEC_4_1 :
+        return {4, 1, "FEC_4_1"};
+    case Fec_type::FEC_4_2 :
+        return {4, 2, "FEC_4_2"};
+    case Fec_type::FEC_4_3 :
+        return {4, 3, "FEC_4_3"};
     default:
         LOG(ERROR) << "no such fec_type";
         return {};
@@ -104,7 +113,7 @@ public:
     }
     
     inline void SetPacket(const void* codec_data, uint16_t len) override{
-        DCHECK_GE(dataLen, len) << "codec data too large, should be less than dataLen";
+        DCHECK_GE(sizeof(Datagram), len) << "codec data too large, should be less than dataLen";
         memcpy(GetPacket(), codec_data, len);
     }
 
@@ -114,6 +123,11 @@ public:
     }
     inline uint8_t* GetPacket() override{
         return (uint8_t*)&packet;
+    }
+
+    static void RandomBlockFecDatagram(BlockFecDatagram* fec_datagram) {
+        Datagram d = Datagram::RandomDatagram();
+        fec_datagram->SetPacket(&d, d.GetTotalLen());
     }
 
     static BlockFecDatagram* HostToNetwork(BlockFecDatagram* d) {

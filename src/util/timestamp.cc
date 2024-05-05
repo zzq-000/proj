@@ -1,4 +1,5 @@
 #include <chrono>
+#include <thread>
 #include "timestamp.hh"
 
 using namespace std;
@@ -17,4 +18,9 @@ uint64_t timestamp_us()
 uint64_t timestamp_ms()
 {
   return system_clock::now().time_since_epoch() / 1ms;
+}
+
+
+void SleepMs(int ms) {
+  std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }

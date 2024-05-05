@@ -4,6 +4,7 @@
 #include "FecDatagram.h"
 #include "FecCodec.h"
 #include <glog/logging.h>
+#include "PacketBuffer.h"
 using namespace std;
 
 
@@ -58,4 +59,9 @@ TEST(BlockFecCodec, basic) {
 
     vector<FecDatagram*> new_buffer{buffer[0], buffer[2]};
     LOG(ERROR) << f.Decode(new_buffer, Fec_type::FEC_2_1);
+}
+
+TEST(BlockFecCodec, basic2) {
+    PacketBuffer pb;
+
 }

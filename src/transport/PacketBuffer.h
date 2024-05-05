@@ -1,3 +1,4 @@
+#pragma once
 
 #include <unordered_map>
 #include "Packet.h"
@@ -7,14 +8,17 @@
 constexpr int kBufferLen = 10000;
 class PacketBuffer{
 private:
-    Packet buffer[kBufferLen];
+    Packet* buffer;
     int current_index = 0;
     std::unordered_map<int, uint64_t> index_to_seq;
     std::unordered_map<uint64_t, int> seq_to_index;
 public:
-    PacketBuffer() = default;
+    PacketBuffer() {
+        buffer = (Packet*)malloc(sizeof(Packet) * kBufferLen);
+    };
 
     int GetALocation() {
+        sizeof(buffer);
         int rtn = current_index;
         current_index = (current_index + 1) % kBufferLen;
         return rtn;
@@ -74,6 +78,16 @@ public:
         int index = GetALocation();
         ClearIndex(index);
         buffer[index] = p;
+        seq_to_index[p.GetSequenceNum()] = index;
+        index_to_seq[index] = p.GetSequenceNum();
     }
-
+    int Size() const {
+        return seq_to_index.size();
+    }
+    ~PacketBuffer() {
+        if (buffer) {
+            delete buffer;
+            buffer = NULL;
+        }
+    }
 };

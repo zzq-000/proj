@@ -12,4 +12,6 @@ uint64_t timestamp_us();
 /* milliseconds since epoch */
 uint64_t timestamp_ms();
 
+
+void SleepMs(int ms);
 #endif /* TIMESTAMP_HH */

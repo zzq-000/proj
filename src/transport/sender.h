@@ -14,7 +14,7 @@ private:
     UDPSocket sock_fd;
     BlockFecCodec fec_codec;
     std::ifstream file;
-    Fec_type fec_type;
+    FecType fec_type;
     std::string file_name;
     bool has_send;
     FlowController fc;
@@ -24,7 +24,7 @@ public:
         has_send = false;
 
     }
-    Sender(std::string filename, Fec_type type, Address& address, int rate)
+    Sender(std::string filename, FecType type, Address& address, int rate)
         : file_name(filename), fec_type(type), server_address(address), has_send(false), fc(rate) {
         file.open(filename);
         if (file.fail()) {

@@ -1,46 +1,52 @@
 #include "FecCodec.h"
 
 
-bool BlockFecCodec::Encode(std::vector<FecDatagram*>& buffers, Fec_type type) {
-    if (buffers.empty()) {
-        LOG(ERROR) << "no enough packets to encode";
-        return false;
-    }
-    Fec_info info = GetInfoAboutFEC(type);
-    DCHECK_EQ(buffers.size(), info.data_cnt) << "buffer size is not equal to fec_type.data_cnt";
-    params.OriginalCount = buffers.size();
+// the length of each element in buffers should be ge than encode_length
+bool BlockFecCodec::Encode(std::vector<void*>& buffers, FecType type, int encode_length) {
+    FecInfo info = GetInfoAboutFEC(type);
+    DCHECK_EQ(buffers.size(), info.data_cnt + info.redundancy_cnt) << "buffers' size should be equal to info.data_cnt + info.redundancy_cnt";
+
+    params.OriginalCount = info.data_cnt;
     params.RecoveryCount = info.redundancy_cnt;
-    params.BlockBytes = buffers.front()->GetPacketLen();
-    for (int i = 0; i < buffers.size(); ++i) { 
-        blocks[i].Block = buffers.at(i)->GetPacket();
-        blocks[i].Index = cm256_get_original_block_index(params, i);
-        buffers[i]->SetFecIndex(blocks[i].Index);
-        params.BlockBytes = std::max(params.BlockBytes, (int)buffers.at(i)->GetPacketLen());
+    params.BlockBytes = encode_length;
+    for (int i = 0; i < info.data_cnt; ++i) { 
+        blocks[i].Block = buffers[i];
     }
 
-    uint8_t* recovery_data = new uint8_t[info.redundancy_cnt * params.BlockBytes];
-    int rtn = cm256_encode(params, blocks, recovery_data);
-
-
-    for (int i = 0; i < info.redundancy_cnt; ++i) {
-        auto ptr_d = new BlockFecDatagram;
-        ptr_d->SetFecIndex(cm256_get_recovery_block_index(params, i));
-        ptr_d->SetPacket(recovery_data + i * params.BlockBytes, params.BlockBytes);
-        buffers.push_back(ptr_d);
+    for (int i = info.data_cnt; i < info.data_cnt + info.redundancy_cnt; ++i) {
+        cm256_encode_block(params, blocks, i, buffers[i]);
     }
-    delete[] recovery_data;
-    return rtn == 0;
+    return true;
 }
 
-bool BlockFecCodec::Decode(std::vector<FecDatagram*>& buffers, Fec_type type) { 
-    Fec_info info = GetInfoAboutFEC(type);
-    if (buffers.size() < info.data_cnt) {
-        return false;
+bool BlockFecCodec::Decode(std::vector<void*>& buffers, FecType type, int decode_length) { 
+    FecInfo info = GetInfoAboutFEC(type);
+    DCHECK_EQ(buffers.size(), info.data_cnt + info.redundancy_cnt) << "buffers' size should be equal to info.data_cnt + info.redundancy_cnt";
+    if (info.redundancy_cnt == 0) {
+        return true;
     }
-    params.BlockBytes = BlockFecDatagram::GetMaxPacketLen();
+    params.OriginalCount = info.data_cnt;
+    params.RecoveryCount = info.redundancy_cnt;
+    params.BlockBytes = decode_length;
+
+    int redundant_index = info.data_cnt;
     for (int i = 0; i < info.data_cnt; ++i) {
-        blocks[i].Block = buffers.at(i)->GetPacket();
-        blocks[i].Index = buffers.at(i)->GetFecIndex();
-    } 
-    return cm256_decode(params, blocks) == 0;
+        if (buffers[i] != NULL) {
+            blocks[i].Block = buffers[i];
+            blocks[i].Index = i;
+        } else {
+            while (buffers[redundant_index] == NULL) redundant_index++;
+            blocks[i].Block = buffers[redundant_index];
+            blocks[i].Index = redundant_index;
+            redundant_index++;
+        }
+    }
+    bool ans = (cm256_decode(params, blocks) == 0);
+
+    for (int i = 0; i < info.data_cnt; ++i) {
+        if (buffers[i] == NULL) {
+            buffers[i] = blocks[i].Block;
+        }
+    }
+    return ans;
 }

@@ -25,7 +25,7 @@ int main() {
     if (resp.GetPacketType() == Packet_type::SessionResponsePacket) {
         cout << "session response" << endl;
     }
-    Receiver receiver("non.txt", Fec_type::FEC_2_1, udp, addr);
+    Receiver receiver("non.txt", FecType::FEC_2_1, udp, addr);
     receiver.KeepReceive();
     // 接收服务器回复
     // char buffer[1024];

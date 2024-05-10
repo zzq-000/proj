@@ -32,7 +32,7 @@ int main() {
 
                 uint8_t buffer[BUFSIZ];
                 auto [address, info] = server.recvfrom();
-                Sender sender("non.txt", Fec_type::FEC_2_1, address, 5 * 1024 * 1024);
+                Sender sender("non.txt", FecType::FEC_2_1, address, 5 * 1024 * 1024);
                 Packet p = Packet::ParseFromData(info.value().data(), info.value().size());
                 if (p.GetPacketType() == Packet_type::SessionRequestPacket) {
                     LOG(INFO) << "received a SessionRequestPacket from: " << address.str();

@@ -37,3 +37,7 @@ target_link_libraries(server2.0 util glog::glog fec)
 
 add_executable(test_blockFecCodec test_blockFecCodec.cc)
 target_link_libraries(test_blockFecCodec gtest_main fec glog)
+
+
+add_executable(test_cornercase test_cornercase.cc)
+target_link_libraries(test_cornercase gtest_main fec glog)

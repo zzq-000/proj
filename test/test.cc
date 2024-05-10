@@ -52,13 +52,48 @@ TEST(BlockFecCodec, basic) {
     const char* s2 = "thank you";
     BlockFecDatagram d2(s2, strlen(s2));
 
+    const char* s3 = "thank you cwenvioevbnoiwenve";
+    BlockFecDatagram d3(s3, strlen(s3));
+
+    const char* s4 = "thandvwinwek you cwenvioevbnoiwenve";
+    BlockFecDatagram d4(s4, strlen(s4));
+
+
     vector<FecDatagram*> buffer;
     buffer.emplace_back(&d1);
     buffer.emplace_back(&d2);
-    f.Encode(buffer, Fec_type::FEC_2_1);
+    buffer.emplace_back(&d3);
+    buffer.emplace_back(&d4);
+    f.Encode(buffer, FecType::FEC_4_2);
 
-    vector<FecDatagram*> new_buffer{buffer[0], buffer[2]};
-    LOG(ERROR) << f.Decode(new_buffer, Fec_type::FEC_2_1);
+    BlockFecDatagram* n1 =  new BlockFecDatagram(*dynamic_cast<BlockFecDatagram*>(buffer[0]));
+    BlockFecDatagram* n2 =  new BlockFecDatagram(*dynamic_cast<BlockFecDatagram*>(buffer[1]));
+    BlockFecDatagram* n3 =  new BlockFecDatagram(*dynamic_cast<BlockFecDatagram*>(buffer[3]));
+    BlockFecDatagram* n4 =  new BlockFecDatagram(*dynamic_cast<BlockFecDatagram*>(buffer[5]));
+    EXPECT_EQ(*n1, *dynamic_cast<BlockFecDatagram*>(buffer[0]));
+    EXPECT_EQ(*n2, *dynamic_cast<BlockFecDatagram*>(buffer[1]));
+    EXPECT_EQ(*n3, *dynamic_cast<BlockFecDatagram*>(buffer[3]));
+    EXPECT_EQ(*n4, *dynamic_cast<BlockFecDatagram*>(buffer[5]));
+    vector<FecDatagram*> new_buffer{n1, n2, n3, n4};
+    // PrintFecDatagram(buffer[0]);
+    // PrintFecDatagram(buffer[2]);
+    // LOG(ERROR) << new_buffer.size();
+    // for (int i = 0; i < 3;++i) {
+    //     LOG(ERROR) << static_cast<int> (new_buffer[i]->GetFecIndex());
+    //     PrintFecDatagram(new_buffer[i]);
+    //     // EXPECT_EQ(*dynamic_cast<BlockFecDatagram*>(new_buffer[i]), *dynamic_cast<BlockFecDatagram*>(buffer[i])) << i;
+    // }
+    LOG(ERROR) << f.Decode(new_buffer, FecType::FEC_4_2);
+    LOG(ERROR) << new_buffer.size();
+    for (int i = 0; i < 4;++i) {
+        LOG(ERROR) << static_cast<int> (new_buffer[i]->GetFecIndex());
+        PrintFecDatagram(new_buffer[i]);
+        // EXPECT_EQ(*dynamic_cast<BlockFecDatagram*>(new_buffer[i]), *dynamic_cast<BlockFecDatagram*>(buffer[i])) << i;
+    }
+    for (int i = 0; i < 4;++i) {
+        // PrintFecDatagram(buffer[i]);
+        EXPECT_EQ(*dynamic_cast<BlockFecDatagram*>(new_buffer[i]), *dynamic_cast<BlockFecDatagram*>(buffer[i])) << i;
+    }
 }
 
 TEST(BlockFecCodec, basic2) {

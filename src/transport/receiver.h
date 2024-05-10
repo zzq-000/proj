@@ -11,11 +11,11 @@ private:
     UDPSocket& sock_fd;
     BlockFecCodec fec_codec;
     std::ofstream file;
-    Fec_type fec_type;
+    FecType fec_type;
     std::string file_name;
     bool has_send;
 public:
-    Receiver(std::string filename, Fec_type type, UDPSocket& udp_fd, Address& address)
+    Receiver(std::string filename, FecType type, UDPSocket& udp_fd, Address& address)
         : file_name(filename), fec_type(type), sock_fd(udp_fd), server_address(address), has_send(false) {
         file.open(filename);
         // sock_fd.bind(address);

@@ -24,3 +24,7 @@
 
 add_library(fec SHARED BlockFecCodec.cc)
 target_link_libraries(fec glog cm256)
+
+
+add_executable(test_codec test.cc)
+target_link_libraries(test_codec fec gtest_main)

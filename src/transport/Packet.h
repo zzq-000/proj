@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "glog/logging.h"
-#include "FecDatagram.h"
+// #include "FecDatagram.h"
 
 
 #define GET_ALIGNED_SIZE(size, align) (((size) / (align) + ((size) % (align) > 0)) * (align))

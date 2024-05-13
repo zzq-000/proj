@@ -34,7 +34,7 @@ int main() {
                 auto [address, info] = server.recvfrom();
                 Sender sender("non.txt", FecType::FEC_2_1, address, 5 * 1024 * 1024);
                 Packet p = Packet::ParseFromData(info.value().data(), info.value().size());
-                if (p.GetPacketType() == Packet_type::SessionRequestPacket) {
+                if (p.GetPacketType() == PacketType::SessionRequestPacket) {
                     LOG(INFO) << "received a SessionRequestPacket from: " << address.str();
                     Packet ack;
                     auto rtn = Protocol::RegisterSessionResponsePacket(p, ack);

@@ -22,7 +22,7 @@ int main() {
     auto info = udp.recv();
     Packet resp = Packet::ParseFromData(info.value().data(), info.value().size());
 
-    if (resp.GetPacketType() == Packet_type::SessionResponsePacket) {
+    if (resp.GetPacketType() == PacketType::SessionResponsePacket) {
         cout << "session response" << endl;
     }
     Receiver receiver("non.txt", FecType::FEC_2_1, udp, addr);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "Packet.h"
+#include "packet.h"
 #include "glog/logging.h"
 
 
@@ -18,7 +18,6 @@ public:
     };
 
     int GetALocation() {
-        sizeof(buffer);
         int rtn = current_index;
         current_index = (current_index + 1) % kBufferLen;
         return rtn;
@@ -51,7 +50,17 @@ public:
     const Packet* FindPacket(int index) const {
         return &buffer[index];
     }
+    Packet* FindPacket(int index) {
+        return &buffer[index];
+    }
     const Packet* FindPacket(uint64_t seq) const {
+        int index = SeqToIndex(seq);
+        if (index != -1) {
+            return &buffer[index];
+        }
+        return NULL;
+    }
+    Packet* FindPacket(uint64_t seq){
         int index = SeqToIndex(seq);
         if (index != -1) {
             return &buffer[index];
@@ -74,12 +83,16 @@ public:
             seq_to_index.erase(seq_iter);
         }
     }
-    void CacheAPacket(const Packet&p) {
+    int CacheAPacket(void* content, int len) {
         int index = GetALocation();
         ClearIndex(index);
-        buffer[index] = p;
-        seq_to_index[p.GetSequenceNum()] = index;
-        index_to_seq[index] = p.GetSequenceNum();
+        Packet* p = reinterpret_cast<Packet*>(content);
+
+        memcpy(&buffer[index], content, len);
+
+        seq_to_index[p->GetSequenceNum()] = index;
+        index_to_seq[index] = p->GetSequenceNum();
+        return index;
     }
     int Size() const {
         return seq_to_index.size();

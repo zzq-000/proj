@@ -4,36 +4,26 @@
 #include <vector>
 #include <iostream>
 #include "glog/logging.h"
-// #include "FecDatagram.h"
+#include "FecDatagram.h"
 
 
 #define GET_ALIGNED_SIZE(size, align) (((size) / (align) + ((size) % (align) > 0)) * (align))
 #define GET_ALIGNED_SIZE_DELETE_EXTRA(size, align) (((size) / (align)) * (align))
 
 static constexpr int kHeaderBitLen = 16;
-constexpr int MTU = 1500;
-constexpr int IPHeader = 20;
-constexpr int UDPHeader = 8;
-constexpr int FECMaxDataLen = MTU - IPHeader - UDPHeader
-                                 - sizeof(uint8_t)/*FecDatagram::fec_index*/ - sizeof(uint16_t)/*Datagram::len*/;
+constexpr int kMTU = 1500;
+constexpr int kIPHeader = 20;
+constexpr int kUDPHeader = 8;
+constexpr int kDataLen = kMTU - kIPHeader - kUDPHeader;
+constexpr int kNackNum = 120;
 
 
 size_t GetAlignedSize(int size, int align) {
     return (size / align + (size % align > 0)) * align;
 }
 
-// class FeedbackPacket{
 
-
-// };
-void printBinary(uint8_t num) {
-    for (int i = 7; i >= 0; i--) {
-        std::cout << ((num >> i) & 1);  // 右移并与1进行AND操作以获取当前位
-    }
-    std::cout << std::endl;
-}
-
-enum class Packet_type{
+enum class PacketType{
     DataPacket = 1,
     FeedbackPacket = 2,
     ProbeRequestPacket = 3,
@@ -43,154 +33,65 @@ enum class Packet_type{
     SessionStartPacket = 7
 };
 
+class DataPacket{
+public:
+    uint16_t len;
+    uint8_t data[kDataLen];
+};
+class FeedbackPacket{
+    double lossrate;
+    uint16_t rtt;
+    uint64_t nack[kNackNum];
+};
+class ProbePacket{
+    bool request; // true for request, false for response
+};
+
 class Packet{
 private:
-    uint64_t seq_num;
-    uint16_t len;
+    uint64_t seq_num = 0;
+    uint8_t packet_type = 0;
+    uint8_t fec_type = 0;
+    uint8_t fec_index = 0; // 当前packet在对应的fec包组中的位置
     
-    // 6 * 8 = 48 bit
-    // 第48 bit表示eof, 发送方表示传输结束
-    // 第47bit表示start, 接收方向服务器发送请求, 此时表示接收方希望以seq_num开始发送
-    // 43-46bit 表示fec_type
-    // 41 42 todo
-    // 37-40bit 表示包的类型     
-    //      0001 dataPacket
-    //      0010 feedbackPacket
-    //      0011 probeRequestPacket
-    //      0100 probeResponsePacket
-    //      0101 FileRequestPacket
-    //      0110 
-    //                     Packet_type       fec_type start eof
-    // [1 1 1 1 1 ....      1 1 1 1      00   1 1 1 1  1     1]   len = 48
-    uint8_t header[6];
-    union {
-        uint8_t data[GET_ALIGNED_SIZE_DELETE_EXTRA(FECMaxDataLen - GET_ALIGNED_SIZE(sizeof(seq_num) + sizeof(len) + sizeof(header), sizeof(uint64_t)), sizeof(uint64_t))];
+    union{
+        DataPacket data_packet;
+        FeedbackPacket feedback_packet;
+        ProbePacket probe_packet;
     };
-
 
 public:
     Packet() = default;
 
-    template<typename T>
-    Packet(T* content, int length){
-        SetContent(content, length);
-    }
-
-    template<typename T>
-    void SetContent(T* content, int length) {
-        DCHECK_GE(sizeof(data), length) << "the length of the content is too large";
-        len = length;
-        memcpy(data, content, len);
-    }
-
-    uint16_t GetContentLen() const {
-        return len;
-    }
-    void SetContentLen(uint16_t length) {
-        len = length;
-    }
-    uint8_t* GetContent() {
-        return data;
-    }
-    const uint8_t* GetContent() const {
-        return data;
-    }
-
-    uint64_t GetSequenceNum() const {
+    inline uint64_t GetSequenceNum() const {
         return seq_num;
     }
-    void SetSequenceNum(uint64_t seq) {
+    inline uint16_t GetPacketSize() const {
+        if (GetPacketType() == PacketType::DataPacket) {
+            return offsetof(Packet, data_packet) + data_packet.len;
+        }
+    }
+
+    inline void ClearDataPacket() {
+        DCHECK_EQ(GetPacketType(), PacketType::DataPacket) << "only data packet can clear self";
+        data_packet.len = 0;
+    }
+
+    inline void SetSequenceNum(uint64_t seq) {
         seq_num = seq;
     }
-    bool IsStart() const {
-        // printBinary(header[5]);
-        // printBinary(header[5] & 0b10);
-        return (header[5] & 0b10) != 0;
+    inline void SetFecType(FecType type) {
+        fec_type = static_cast<int>(type);
     }
-    void SetStart() {
-        // printBinary(header[5]);
-        header[5] |= 0b10;
-        // printBinary(header[5]);
-
+    inline void SetPacketType(PacketType type) {
+        packet_type = static_cast<int>(type);
     }
-    bool IsEOF() const {
-        return (header[5] & 1) == 1;
-    };
-    void SetEOF() {
-        header[5] |= 1;
+    inline PacketType GetPacketType() const {
+        return static_cast<PacketType>(packet_type);
     }
-    Packet_type GetPacketType() const {
-          return static_cast<Packet_type>(header[4] & 0b1111);
-    }
-    void SetPacketType(Packet_type type) {
-        header[4] = ((header[4] & 0b0000) | static_cast<uint8_t>(type));
-    }
-    int PacketSize() const {
-        Packet_type type = GetPacketType();
-        switch (type)
-        {
-        case Packet_type::DataPacket:
-            return GetHeaderSize() + len;
-        default:
-            return GetHeaderSize();
-        }
-    }
-    void Clear() {
-        memset(data, 0, sizeof(data));
-        memset(header, 0, sizeof(header));
-        len = 0;
-        seq_num = 0;
-    }
-    static uint8_t GetHeaderSize() {
-        return sizeof(seq_num) + sizeof(len) + sizeof(header);
-    }
-    static Packet GenerateRandomPacket() {
-        Packet p;
-        p.seq_num = rand() % 1000 + 100;
-        p.len = rand() % sizeof(data);
-        for (int i = 0; i < p.len; ++i) {
-            p.data[i] = rand() % 10000 + rand() % 9999;
-        }
-        p.SetPacketType(Packet_type::DataPacket);
-        return p;
-    }
-    static Packet ParseFromData(const void* content, int len) {
-        Packet p;
+    inline void SetFecIndex(uint8_t fec_index) {
+        this->fec_index = fec_index;
         
-        uint8_t* data = (uint8_t*)content;
-        memcpy(&p, data, Packet::GetHeaderSize());
-        // LOG(INFO) << static_cast<int>(Packet::GetHeaderSize());
-        // LOG(INFO) << len;
-        // LOG(INFO) << len - Packet::GetHeaderSize();
-        // LOG(INFO) << p.GetContentLen();
-
-        if (len - Packet::GetHeaderSize() != p.GetContentLen()) {
-            LOG(FATAL) << "invalid packet";
-        }
-        // DCHECK_EQ((int)p.GetContentLen(), len - Packet::GetHeaderSize()) << "invalid packet";
-        if (p.PacketSize() > Packet::GetHeaderSize()) {
-            memcpy(p.data, data + Packet::GetHeaderSize(), p.GetContentLen());
-        }
-        return p;
     }
-
-    template<typename T>
-    static std::vector<Packet> GeneratePackets(T* buffer, int len, int start_seq = 0) {
-        int size = (len / sizeof(data) + (len % sizeof(data) > 0));
-        std::vector<Packet> rtn(size);
-        uint8_t* ptr = (uint8_t*)buffer;
-        for (int i = 0; i < size; ++i) {
-            if (i != size - 1) {
-                rtn[i].SetContent(ptr, sizeof(data));
-                ptr += sizeof(data);
-            }else {
-                rtn[i].SetContent(ptr, len % sizeof(data));
-                rtn[i].SetEOF();
-            }
-            rtn[i].SetSequenceNum(i + start_seq);
-        }
-        rtn[0].SetStart();
-        return rtn;
-    } 
 };
 

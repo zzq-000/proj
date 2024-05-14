@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+import "FEC/fec_type.proto";
+
+enum PacketType {
+    DataPacketId = 0;
+    FeedbackPacketId = 1;
+    ProbeRequestPacketId = 2;
+    ProbeResponsePacketId = 3;
+    SessionRequestPacketId = 4;
+    SessionResponsePacketId = 5;
+    SessionStartPacketId = 6;
+}
+
+message DataPacket {
+    uint32 len = 1;
+    bytes data = 2;
+}
+
+message FeedbackPacket {
+    double lossrate = 1;
+    uint32 rtt = 2;
+    repeated uint64 nack = 3;
+
+}
+
+message ProbePacket {
+    uint64 seq_num = 1;
+    bool request = 2;
+}
+
+message Packet {
+    uint64 seq_num = 1;
+    
+    PacketType packet_type = 2;
+
+    FecType fec_type = 3;
+    uint32 fec_index = 4;
+
+    oneof SubPacket {
+        DataPacket data_packet = 5;
+        FeedbackPacket feedback_packet = 6;
+        ProbePacket probe_packet = 7;
+    }
+}

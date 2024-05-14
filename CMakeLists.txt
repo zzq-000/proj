@@ -16,6 +16,9 @@ add_subdirectory(src)
 # add_subdirectory(test)
 
 
+# find_package(protobuf)
+# message(${PROTOBUF})
+
 # add cm256
 # include_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/include)
 # link_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/build)

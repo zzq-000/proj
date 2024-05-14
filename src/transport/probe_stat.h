@@ -45,21 +45,24 @@ class ProbeStat{
         int cnt = 0;
         double total_time = 0;
         for (int i = 0; i < kProbeRecordCount; ++i) {
-            if (ts - records[i].sent_timestamp > outdate_record_duration_ms) {
-                continue;
+            if (ts - records[i].sent_timestamp > outdate_record_duration_ms 
+                && records[i].received_timestamp != 0) {
+                total_time += records[i].received_timestamp - records[i].sent_timestamp;
+                cnt++;
             }
-            total_time += records[i].received_timestamp - records[i].sent_timestamp;
-            cnt++;
 
+        }
+        if (cnt == 0) {
+            return {0, 0};
         }
         double rtt_mean = total_time / cnt;
         double square_sum = 0;
         for (int i = 0; i < kProbeRecordCount; ++i) {
-            if (ts - records[i].sent_timestamp > outdate_record_duration_ms) {
-                continue;
+            if (ts - records[i].sent_timestamp > outdate_record_duration_ms
+                && records[i].received_timestamp != 0) {
+                double v = records[i].received_timestamp - records[i].sent_timestamp - rtt_mean;
+                square_sum = v * v;
             }
-            double v = records[i].received_timestamp - records[i].sent_timestamp - rtt_mean;
-            square_sum = v * v;
         }
         double rtt_std = sqrt(square_sum / cnt);
 
@@ -70,10 +73,10 @@ class ProbeStat{
 class LossStat{
     struct Record{
         uint64_t second;
-        int raw_packet_count;
-        int raw_packet_loss_count;
-        int data_packet_count;
-        int data_packet_loss_count;
+        uint32_t raw_packet_count;
+        uint32_t raw_packet_loss_count;
+        uint32_t data_packet_count;
+        uint32_t data_packet_loss_count;
     };
     const static int kRecordLen = 60;
     Record data[kRecordLen];
@@ -117,8 +120,8 @@ class LossStat{
                 total_data_packet_loss_count += data[i].data_packet_loss_count;
             }
         }
-        double raw_packet_loss = (double)total_raw_packet_loss_count / total_raw_packet_count;
-        double data_packet_loss = (double)total_data_packet_loss_count / total_data_packet_count;
+        double raw_packet_loss = total_raw_packet_count == 0 ? 0 : (double)total_raw_packet_loss_count / total_raw_packet_count;
+        double data_packet_loss = total_data_packet_count == 0 ? 0 : (double)total_data_packet_loss_count / total_data_packet_count;
         return {raw_packet_loss, data_packet_loss};
     }
 

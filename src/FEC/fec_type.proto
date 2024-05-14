@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+enum FecType {
+    FEC_NONE = 0;
+    FEC_2_1 = 1;
+    FEC_3_1 = 2;
+    FEC_3_2 = 3;
+    FEC_4_1 = 4;
+    FEC_4_2 = 5;
+    FEC_4_3 = 6;
+    FEC_5_1 = 7;
+    FEC_5_2 = 8;
+    FEC_5_3 = 9;
+    FEC_5_4 = 10;
+    FEC_6_1 = 11;
+    FEC_6_2 = 12;
+    FEC_6_3 = 13;
+    FEC_6_4 = 14;
+    FEC_7_1 = 15;
+}

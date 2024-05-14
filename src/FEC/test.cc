@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include "FecCodec.h"
+#include "fec_type.pb.h"
+#include "FecDatagram.h"
 #include "gtest/gtest.h"
 
 TEST(BlockFecCodec, Basic) {

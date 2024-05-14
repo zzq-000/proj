@@ -22,9 +22,9 @@
 # include_directories(${PROJECT_SOURCE_DIR}/third_party/glog/src)
 # link_directories(${PROJECT_SOURCE_DIR}/third_party/glog/build)
 
-add_library(fec SHARED BlockFecCodec.cc)
-target_link_libraries(fec glog cm256)
+add_library(fec SHARED BlockFecCodec.cc fec_type.pb.cc)
+target_link_libraries(fec glog cm256 protobuf)
 
 
 add_executable(test_codec test.cc)
-target_link_libraries(test_codec fec gtest_main)
+target_link_libraries(test_codec fec gtest_main )

@@ -1,19 +1,4 @@
-#pragma once
-#include <string>
-
-#include <glog/logging.h>
-#include "fec_type.pb.h"
-
-
-struct FecInfo{
-    int data_cnt;
-    int redundancy_cnt;
-    std::string type;
-    inline int TotalCount() const {
-        return data_cnt + redundancy_cnt;
-    }
-};
-
+#include "fec_util.h"
 
 
 FecInfo GetInfoAboutFEC(FecType t) {

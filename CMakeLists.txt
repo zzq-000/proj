@@ -11,25 +11,34 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/lib)
 
-add_subdirectory(third_party)
+# add_subdirectory(third_party)
 add_subdirectory(src)
 # add_subdirectory(test)
 
+# 定义预处理器宏
+# add_definitions(-DGOOGLE_GLOG_DLL_DECL=)
+# add_definitions(-DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS=)
 
+# 添加头文件搜索路径
+# include_directories(/usr/local/include)
+
+# 添加库搜索路径
+# link_directories(/usr/local/lib)
 # find_package(protobuf)
 # message(${PROTOBUF})
+
 
 # add cm256
 # include_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/include)
 # link_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/build)
 
 
-# add googletest
+# # add googletest
 # include_directories(${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
 # include_directories(${PROJECT_SOURCE_DIR}/third_party/googletest/googlemock/include)
 # link_directories(${PROJECT_SOURCE_DIR}/third_party/googletest/build/lib)
 
-# add glog
+# # add glog
 # include_directories(${PROJECT_SOURCE_DIR}/third_party/glog/src)
 # link_directories(${PROJECT_SOURCE_DIR}/third_party/glog/build)
 

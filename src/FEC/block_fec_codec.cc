@@ -1,5 +1,5 @@
-#include "FecCodec.h"
-
+#include "fec_codec.h"
+#include "fec_util.h"
 
 // the length of each element in buffers should be ge than encode_length
 bool BlockFecCodec::Encode(std::vector<void*>& buffers, FecType type, int encode_length) {

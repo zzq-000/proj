@@ -1,2 +1,3 @@
 file(GLOB UTIL_SOURCES "*.cc")
 add_library(util SHARED ${UTIL_SOURCES})
+target_include_directories(util INTERFACE ${PROJECT_SOURCE_DIR}/src)

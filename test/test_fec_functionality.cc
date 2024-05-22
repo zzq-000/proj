@@ -1,9 +1,9 @@
 #include <unordered_set>
 #include <fstream>
 #include <iostream>
-#include "fec_util.h"
-#include "fec_codec.h"
-#include "fec_type.pb.h"
+#include "FEC/fec_util.h"
+#include "FEC/fec_codec.h"
+#include "FEC/fec_type.pb.h"
 #include "gtest/gtest.h"
 
 TEST(BlockFecCodec, Basic) {

@@ -27,7 +27,7 @@ add_library(fec block_fec_codec.cc fec_util.cc)
 target_include_directories(fec INTERFACE ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(fec PUBLIC glog::glog cm256 fec_type)
 
-add_executable(test_codec test.cc)
-target_link_libraries(test_codec GTest::gtest_main fec)
+# add_executable(test_codec test.cc)
+# target_link_libraries(test_codec GTest::gtest_main fec)
 # absl::log_internal_check_op
 

@@ -1,6 +1,6 @@
 #include <chrono>
 #include <thread>
-#include "timestamp.hh"
+#include "timestamp.h"
 
 using namespace std;
 using namespace chrono;

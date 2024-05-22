@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "poller.hh"
-#include "exception.hh"
+#include "poller.h"
+#include "exception.h"
 
 using namespace std;
 

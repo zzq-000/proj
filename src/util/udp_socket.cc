@@ -1,8 +1,8 @@
 #include <vector>
 #include <stdexcept>
 
-#include "udp_socket.hh"
-#include "exception.hh"
+#include "udp_socket.h"
+#include "exception.h"
 
 using namespace std;
 

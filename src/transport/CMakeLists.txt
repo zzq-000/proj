@@ -21,7 +21,7 @@ protobuf_generate(
 )
 
 
-add_executable(test2 test.cc)
-target_link_libraries(test2 packet fec_type)
+# add_executable(test2 test.cc)
+# target_link_libraries(test2 packet fec_type)
 
-add_library(cach packet_cache.cc)
+# add_library(cach packet_cache.cc)

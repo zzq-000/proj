@@ -1,4 +1,4 @@
-#include "ge_channel.hh"
+#include "ge_channel.h"
 
 bool GEChannel::is_received()
 {

@@ -1,6 +1,6 @@
-#include "timerfd.hh"
-#include "exception.hh"
-#include "conversion.hh"
+#include "timerfd.h"
+#include "exception.h"
+#include "conversion.h"
 
 using namespace std;
 

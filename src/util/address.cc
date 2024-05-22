@@ -1,7 +1,7 @@
 #include <cstring>
 #include <stdexcept>
 
-#include "address.hh"
+#include "address.h"
 
 using namespace std;
 

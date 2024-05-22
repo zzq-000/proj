@@ -1,7 +1,7 @@
 #include <fcntl.h>
 
-#include "socket.hh"
-#include "exception.hh"
+#include "socket.h"
+#include "exception.h"
 
 using namespace std;
 

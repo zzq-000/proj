@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "file_descriptor.hh"
-#include "exception.hh"
+#include "file_descriptor.h"
+#include "exception.h"
 
 using namespace std;
 

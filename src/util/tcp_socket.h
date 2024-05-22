@@ -4,7 +4,7 @@
 #include <string>
 #include <string_view>
 
-#include "socket.hh"
+#include "socket.h"
 
 class TCPSocket : public Socket
 {

@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "mmap.hh"
-#include "exception.hh"
+#include "mmap.h"
+#include "exception.h"
 
 using namespace std;
 

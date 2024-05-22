@@ -4,7 +4,7 @@
 #include <time.h>
 #include <sys/timerfd.h>
 
-#include "file_descriptor.hh"
+#include "file_descriptor.h"
 
 class Timerfd : public FileDescriptor
 {

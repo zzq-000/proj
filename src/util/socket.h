@@ -4,8 +4,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "address.hh"
-#include "file_descriptor.hh"
+#include "address.h"
+#include "file_descriptor.h"
 
 class Socket : public FileDescriptor
 {

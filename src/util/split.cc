@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "split.hh"
+#include "split.h"
 
 using namespace std;
 

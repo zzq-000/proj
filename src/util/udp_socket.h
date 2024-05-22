@@ -6,8 +6,8 @@
 #include <utility>
 #include <optional>
 
-#include "socket.hh"
-#include "address.hh"
+#include "socket.h"
+#include "address.h"
 
 class UDPSocket : public Socket
 {

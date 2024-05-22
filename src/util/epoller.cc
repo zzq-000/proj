@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <iostream>
 
-#include "epoller.hh"
-#include "exception.hh"
+#include "epoller.h"
+#include "exception.h"
 
 using namespace std;
 

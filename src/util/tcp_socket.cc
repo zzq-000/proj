@@ -1,5 +1,5 @@
-#include "tcp_socket.hh"
-#include "exception.hh"
+#include "tcp_socket.h"
+#include "exception.h"
 
 using namespace std;
 

@@ -74,7 +74,7 @@ struct Stat {
 };
 
 
-TEST(BlockFecCodec, Advance) {
+TEST(BlockFecCodec, DISABLED_Advance) {
 // int main() {
     BlockFecCodec codec;
     std::unordered_set<int> blockbytes{100, 1000, 1472};

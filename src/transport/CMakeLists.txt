@@ -20,7 +20,11 @@ protobuf_generate(
     PROTOC_OUT_DIR "${CMAKE_CURRENT_LIST_DIR}"
 )
 
-
+add_library(transport 
+    packet_cache.cc
+)
+target_link_libraries(transport packet fec_type)
+target_include_directories(transport INTERFACE ${PROJECT_SOURCE_DIR}/src)
 # add_executable(test2 test.cc)
 # target_link_libraries(test2 packet fec_type)
 

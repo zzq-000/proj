@@ -1,3 +1,5 @@
+#pragma once
+
 #include "has_member_function.h"
 #include <cstddef>
 #include <cstdint>
@@ -17,6 +19,6 @@ public:
     ~PacketCache();
 
 
-    CachedType* FindPacket(uint32_t seq_num);
+    CachedType* FindPacket(uint64_t seq_num);
     void CachePacket(const CachedType& packet);
 };

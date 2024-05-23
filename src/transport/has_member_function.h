@@ -24,7 +24,21 @@ public:
     static const bool value = sizeof(test<T>(0)) == sizeof(YesType);
 };
 
+// 特化支持 const 成员函数
+template<typename T, typename Ret, typename... Args, Ret(T::*func)(Args...) const>
+class has_member_function<T, Ret(T::*)(Args...) const, func> {
+private:
+    typedef char YesType[1];
+    typedef char NoType[2];
 
+    template<typename U, U> struct really_has;
+
+    template<typename C> static YesType& test(really_has<Ret(T::*)(Args...) const, func>*);
+    template<typename C> static NoType& test(...);
+
+public:
+    static const bool value = sizeof(test<T>(0)) == sizeof(YesType);
+};
 
 
 // template <typename, typename T>

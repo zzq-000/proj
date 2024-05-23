@@ -40,7 +40,7 @@ PacketCache<CachedType>::~PacketCache() {
 }
 
 template<typename CachedType>
-CachedType* PacketCache<CachedType>::FindPacket(uint64_t seq_num) {
+CachedType* PacketCache<CachedType>::FindPacket(uint64_t seq_num) const{
     int previous_index = (next_index_ - 1 + size_) % size_;
 
 
@@ -58,9 +58,18 @@ CachedType* PacketCache<CachedType>::FindPacket(uint64_t seq_num) {
 }
 
 template<typename CachedType>
+CachedType* PacketCache<CachedType>::GetNextPlaceToCache() {
+    CachedType* ans = data_ + next_index_;
+    next_index_ = (next_index_ + 1) % size_;
+    return ans;
+}
+
+template<typename CachedType>
 void PacketCache<CachedType>::CachePacket(const CachedType& packet) {
     data_[next_index_].CopyFrom(packet);
     next_index_ = (next_index_ + 1) % size_;
 }
+
+
 
 template class PacketCache<Packet>;

@@ -73,7 +73,7 @@ struct Stat {
     }
 };
 
-
+//耗时操作， 测试其他用例的时候可以关闭掉
 TEST(BlockFecCodec, DISABLED_Advance) {
 // int main() {
     BlockFecCodec codec;

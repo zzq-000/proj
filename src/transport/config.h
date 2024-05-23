@@ -1,10 +1,8 @@
 
-#include "FEC/FecCodec.h"
-
+#include "FEC/fec_type.pb.h"
 struct Config{
 
     bool enable_nack = true;
-    bool enable_fec  = true;
     
     FecType fec_type = FecType::FEC_2_1;
 

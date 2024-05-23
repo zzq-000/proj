@@ -20,6 +20,11 @@ public:
     PacketLogger(): start_seq_num(0), size(0) {
         cache = new PacketRecord[kRecordLen];
     }
+    PacketRecord(const Packet& rhs) = delete;
+    PacketRecord& operator= (const Packet& rhs) = delete;
+    PacketRecord(Packet&& rhs) = delete;
+    PacketRecord& operator= (PacketRecord&& rhs) = delete;
+    
     inline int GetSize() const {
         return size;
     }

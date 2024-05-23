@@ -14,3 +14,16 @@ TEST(Packet, BasicCopy) {
     EXPECT_EQ(r.SerializeAsString(), p.SerializeAsString());
     EXPECT_EQ(r.DebugString(), p.DebugString());
 }
+
+TEST(DataPacket, Clear) {
+    DataPacket d;
+    // d.Clear();
+    EXPECT_EQ(d.ByteSizeLong(), 0);
+}
+
+TEST(DataPacket, Set_data) {
+    DataPacket d;
+    uint8_t buffer[100];
+    d.set_data(buffer, 100);
+
+}

@@ -29,6 +29,7 @@ inline Packet RandomPacket(uint64_t seq_num) {
         s.push_back(ch);
     }
     d->set_data(s);
+    d->set_len(len);
     p.set_allocated_data_packet(d);
 
     FecType type = RandomFecType();

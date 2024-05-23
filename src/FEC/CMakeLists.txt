@@ -1,6 +1,6 @@
 
-include_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/include)
-link_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/build)
+# include_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/include)
+# link_directories(${PROJECT_SOURCE_DIR}/third_party/cm256/build)
 
 find_package(glog REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)

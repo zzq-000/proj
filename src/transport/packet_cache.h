@@ -11,7 +11,7 @@ private:
     uint32_t size_;
     int next_index_; // 存放下一个包应该存放的索引
 public:
-    explicit PacketCache(uint32_t size);
+    explicit PacketCache(uint32_t size = 1000);
     PacketCache(const PacketCache& rhs) = delete;
     PacketCache& operator=(const PacketCache& rhs) = delete;
     PacketCache(PacketCache&& rhs);
@@ -19,6 +19,9 @@ public:
     ~PacketCache();
 
 
-    CachedType* FindPacket(uint64_t seq_num);
+    CachedType* FindPacket(uint64_t seq_num) const;
+    CachedType* GetNextPlaceToCache();
+
     void CachePacket(const CachedType& packet);
+
 };

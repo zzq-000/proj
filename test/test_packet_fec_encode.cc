@@ -20,7 +20,7 @@ TEST(Packet_FEC, Basic_Encode) {
         encode_size = std::max(encode_size, (int)packets.at(i).data_packet().ByteSizeLong());
         // GTEST_LOG_(INFO) << packets.at(i).data_packet().len();
     }
-    GTEST_LOG_(INFO) << "======encode_size: " << encode_size << "======";
+    // GTEST_LOG_(INFO) << "======encode_size: " << encode_size << "======";
     for (int i = data_num; i < info.data_cnt; ++i) {
         DataPacket* data = new DataPacket;
         data->set_len(0);
@@ -49,7 +49,7 @@ TEST(Packet_FEC, Basic_Encode) {
     // for (int i = 0; i < info.TotalCount(); ++i) {
     //     packets.at(i).set_fec_index(i);
     // }
-    GTEST_LOG_(INFO) << "hello";
+    // GTEST_LOG_(INFO) << "hello";
     int erased = 0;
     int rate = 30;
     for (int i = 0; i < info.TotalCount(); ++i) {

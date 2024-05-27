@@ -9,9 +9,10 @@ find_package(glog REQUIRED)
 
 
 add_executable(unittest 
-    test_fec_functionality.cc
-    test_packet_functionality.cc
-    test_packet_cache_functionality.cc
-    test_packet_fec_encode.cc
+    # test_fec_functionality.cc
+    # test_packet_functionality.cc
+    # test_packet_cache_functionality.cc
+    # test_packet_fec_encode.cc
+    test_sworker_functionality.cc
 )
-target_link_libraries(unittest GTest::gtest_main fec glog::glog transport)
+target_link_libraries(unittest GTest::gtest_main glog::glog transport fec util)

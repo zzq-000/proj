@@ -3,9 +3,10 @@
 #include "FEC/fec_util.h"
 #include <string>
 
+// 不会返回FEC_NONE
 inline FecType RandomFecType() {
-    int total_kinds = 16;
-    return static_cast<FecType>(rand() % total_kinds);
+    int total_kinds = 15;
+    return static_cast<FecType>(rand() % total_kinds + 1);
 }
 
 inline uint32_t RandomFecIndex(FecType type) {
@@ -15,6 +16,20 @@ inline uint32_t RandomFecIndex(FecType type) {
 
 inline uint64_t RandomSeqNum() {
     return rand() % UINT64_MAX;
+}
+
+inline DataPacket RandomDataPacket() {
+    DataPacket p;
+    int len = rand() % 1450 + 30;
+    uint8_t* buffer = new uint8_t[len];
+    for (int i = 0; i < len; ++i) {
+        buffer[i] = rand() % UINT8_MAX;
+    }
+
+    p.set_len(len);
+    p.set_data(buffer, len);
+    delete[] buffer;
+    return p;
 }
 
 inline Packet RandomPacket(uint64_t seq_num) {

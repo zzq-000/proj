@@ -25,5 +25,19 @@ TEST(DataPacket, Set_data) {
     DataPacket d;
     uint8_t buffer[100];
     d.set_data(buffer, 100);
+}
+
+TEST(Vector, pointer) {
+    int len = 7;
+    std::vector<void*> buffer(len);
+    int size = 1000;
+    for (int i = 0; i < len; ++i) {
+        buffer[i] = new uint8_t[size];
+    }
+
+    for (int i = 0; i < len; ++i) {
+        // delete[] (uint8_t*)buffer[i];
+        delete[] static_cast<uint8_t*>(buffer[i]);
+    }
 
 }

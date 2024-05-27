@@ -17,6 +17,7 @@ private:
     void ClearFec(std::list<Packet*>& rtn);
     void EncodeFecOnce(std::list<Packet*>& rtn);
     Packet* RegisterDataPacket(const DataPacket& packet);
+    Packet* RegisterDataPacket(void* buffer, int len);
 public:
     SWorker(Config config);
 

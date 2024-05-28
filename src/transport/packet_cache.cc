@@ -84,8 +84,11 @@ CachedType* PacketCache<CachedType>::GetNextPlaceToCache(uint64_t seq_num) {
 
 template<typename CachedType>
 void PacketCache<CachedType>::CachePacket(const CachedType& packet) {
-    CachedType* p = GetNextPlaceToCache(packet.seq_num());
-    p->CopyFrom(packet);
+    CachedType* find_packet = FindPacket(packet.seq_num());
+    if (find_packet == NULL) {
+        CachedType* p = GetNextPlaceToCache(packet.seq_num());
+        p->CopyFrom(packet);
+    }
 }
 
 

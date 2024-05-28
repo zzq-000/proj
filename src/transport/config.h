@@ -13,7 +13,7 @@ struct Config{
     FecType fec_type;
 
     uint64_t fec_encode_wait_time_limit_ms;
-
+    uint64_t fec_decode_wait_time_limit_ms;
 
 
     static Config GetDefaultConfig() {
@@ -24,6 +24,7 @@ struct Config{
         config.fec_type = FEC_NONE;
         
         config.fec_encode_wait_time_limit_ms = 40;
+        config.fec_decode_wait_time_limit_ms = 60;
         
         return config;
     }

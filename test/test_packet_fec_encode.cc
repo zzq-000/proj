@@ -69,7 +69,7 @@ TEST(Packet_FEC, Basic_Encode) {
                 EXPECT_EQ(p.DebugString(), packets.at(i).data_packet().DebugString());
                 EXPECT_EQ(p.ByteSizeLong(), packets.at(i).data_packet().ByteSizeLong());
             }else {
-                // EXPECT_EQ(p.len(), 0);
+                EXPECT_EQ(p.ByteSizeLong(), 0);
             }
         }
     }

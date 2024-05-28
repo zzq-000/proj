@@ -6,6 +6,8 @@ RWorker::RWorker(Config config):
 
 
 //尽力而为按序交付
+
+// TODO, 如何触发nack
 std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
     std::list<DataPacket*> rtn;
     cache_.CachePacket(packet);
@@ -67,7 +69,7 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
                  timestamp_ms() - last_submit_time_ >= config_.fec_decode_wait_time_limit_ms) {
                 for (uint64_t i = start_seq; i < start_seq + info.data_cnt; ++i) {
                     Packet* p = cache_.FindPacket(i);
-                    if (packet) {
+                    if (p) {
                         rtn.push_back(const_cast<DataPacket*>(&(p->data_packet())));
                     }
                 }

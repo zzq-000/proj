@@ -14,7 +14,7 @@ struct Config{
 
     uint64_t fec_encode_wait_time_limit_ms;
     uint64_t fec_decode_wait_time_limit_ms;
-
+    uint64_t nack_trigger_wait_time_limit_ms;
 
     static Config GetDefaultConfig() {
         Config config;
@@ -24,6 +24,11 @@ struct Config{
         config.fec_type = FEC_NONE;
         
         config.fec_encode_wait_time_limit_ms = 40;
+
+        //发现该包组超过30ms还没有接收完全， 则触发重传
+        config.nack_trigger_wait_time_limit_ms = 30;
+
+        // 超过多少毫秒， 不管该包组是否接收完全， 都要往应用层交付
         config.fec_decode_wait_time_limit_ms = 60;
         
         return config;

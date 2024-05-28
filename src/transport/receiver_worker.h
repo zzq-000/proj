@@ -14,5 +14,6 @@ private:
     BlockFecCodec codec_;
 
 public:
-    RWorker();
+    RWorker(Config config);
+    std::list<DataPacket*> GetApplicationMessages(const Packet& packet);
 };

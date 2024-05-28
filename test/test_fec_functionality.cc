@@ -7,6 +7,8 @@
 #include "gtest/gtest.h"
 
 TEST(BlockFecCodec, Basic) {
+    srand(time(NULL));
+
     BlockFecCodec codec;
     FecType type = FecType::FEC_3_1;
     int len = 100;

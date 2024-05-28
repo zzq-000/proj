@@ -11,7 +11,7 @@ private:
     CachedType* data_;
     std::map<uint64_t, int> query_table_;
     uint32_t size_;
-    int next_index_; // 存放下一个包应该存放的索引
+    int next_index_; // 下一个包应该存放的索引
     void Shrink();
 public:
     static constexpr int kThreshold = 3;

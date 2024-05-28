@@ -25,8 +25,6 @@ inline DataPacket RandomDataPacket() {
     for (int i = 0; i < len; ++i) {
         buffer[i] = rand() % UINT8_MAX;
     }
-
-    p.set_len(len);
     p.set_data(buffer, len);
     delete[] buffer;
     return p;
@@ -44,14 +42,14 @@ inline Packet RandomPacket(uint64_t seq_num) {
         s.push_back(ch);
     }
     d->set_data(s);
-    d->set_len(len);
     p.set_allocated_data_packet(d);
 
     FecType type = RandomFecType();
     p.set_fec_type(type);
     p.set_fec_index(RandomFecIndex(type));
     p.set_seq_num(seq_num);
-    
+    p.set_subpacket_len(d->ByteSizeLong());
+    assert(p.subpacket_len() == d->ByteSizeLong());
     return p;
 }
 

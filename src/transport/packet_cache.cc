@@ -3,6 +3,7 @@
 template<typename CachedType>
 PacketCache<CachedType>::PacketCache(uint32_t size):query_table_(), size_(size), next_index_(0){
     static_assert(has_member_function<CachedType, uint64_t(CachedType::*)() const, &CachedType::seq_num>::value);
+    static_assert(has_member_function<CachedType, void(CachedType::*)(const CachedType&), &CachedType::CopyFrom>::value);
     data_ = new CachedType[size_];
 }
 
@@ -83,10 +84,8 @@ CachedType* PacketCache<CachedType>::GetNextPlaceToCache(uint64_t seq_num) {
 
 template<typename CachedType>
 void PacketCache<CachedType>::CachePacket(const CachedType& packet) {
-    query_table_[packet.seq_num()] = next_index_;
-    Shrink();
-    data_[next_index_].CopyFrom(packet);
-    next_index_ = (next_index_ + 1) % size_;
+    CachedType* p = GetNextPlaceToCache(packet.seq_num());
+    p->CopyFrom(packet);
 }
 
 

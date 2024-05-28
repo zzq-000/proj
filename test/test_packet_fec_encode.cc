@@ -5,6 +5,7 @@
 
 
 TEST(Packet_FEC, Basic_Encode) {
+    srand(time(NULL));
     FecType type = RandomFecType();
     FecInfo info = GetInfoAboutFEC(type);
 
@@ -18,15 +19,14 @@ TEST(Packet_FEC, Basic_Encode) {
         // GTEST_LOG_(INFO) << p.data_packet().len();
         packets.push_back(p);
         encode_size = std::max(encode_size, (int)packets.at(i).data_packet().ByteSizeLong());
-        // GTEST_LOG_(INFO) << packets.at(i).data_packet().len();
+        // GTEST_LOG_(INFO) << packets.at(i).subpacket_len();
     }
     // GTEST_LOG_(INFO) << "======encode_size: " << encode_size << "======";
     for (int i = data_num; i < info.data_cnt; ++i) {
         DataPacket* data = new DataPacket;
-        data->set_len(0);
         Packet p = RandomPacket(seq_num++);
         p.set_allocated_data_packet(data);
-
+        p.set_subpacket_len(data->ByteSizeLong());
         packets.push_back(p);
     }
 
@@ -59,14 +59,18 @@ TEST(Packet_FEC, Basic_Encode) {
             erased ++;
         }
     }
-    if (erased <= info.redundancy_cnt) {
+    if (erased <= info.redundancy_cnt && encode_size) {
         bool decode_ans = codec.Decode(data, type, encode_size);
         EXPECT_EQ(decode_ans, true);
         for (int i = 0; i < info.data_cnt; ++i) {
-            Packet p;
-            p.ParseFromArray(data[i], encode_size);
-            EXPECT_EQ(p.DebugString(), packets.at(i).DebugString());
-            EXPECT_EQ(p.ByteSizeLong(), packets.at(i).ByteSizeLong());
+            DataPacket p;
+            p.ParseFromArray(data[i], packets.at(i).data_packet().ByteSizeLong());
+            if (i < data_num) {
+                EXPECT_EQ(p.DebugString(), packets.at(i).data_packet().DebugString());
+                EXPECT_EQ(p.ByteSizeLong(), packets.at(i).data_packet().ByteSizeLong());
+            }else {
+                // EXPECT_EQ(p.len(), 0);
+            }
         }
     }
 

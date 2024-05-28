@@ -8,6 +8,8 @@
 
 
 TEST(PacketCache, PacketSizeLECacheSize) {
+    srand(time(NULL));
+
     constexpr int kCacheSize = 1000;
 
     PacketCache<Packet> cache(kCacheSize);
@@ -37,6 +39,8 @@ TEST(PacketCache, PacketSizeLECacheSize) {
 }
 
 TEST(PacketCache, PacketSizeGTCacheSize) {
+    srand(time(NULL));
+
     constexpr int kCacheSize = 1000;
 
     PacketCache<Packet> cache(kCacheSize);

@@ -5,6 +5,8 @@
 
 
 TEST(SWorker, RegisterPackets_without_FEC) {
+    srand(time(NULL));
+
     Config config = Config::GetDefaultConfig();
     SWorker worker(config);
 
@@ -33,7 +35,7 @@ TEST(SWorker, RegisterPackets_with_FEC) {
     config.fec_type = RandomFecType();
     FecInfo info = GetInfoAboutFEC(config.fec_type);
 
-    GTEST_LOG_(INFO) << info.type;
+    // GTEST_LOG_(INFO) << info.type;
 
     SWorker worker(config);
 

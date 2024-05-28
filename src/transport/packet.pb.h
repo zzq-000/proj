@@ -616,10 +616,9 @@ class DataPacket final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kDataFieldNumber = 2,
-    kLenFieldNumber = 1,
+    kDataFieldNumber = 1,
   };
-  // bytes data = 2;
+  // bytes data = 1;
   void clear_data() ;
   const std::string& data() const;
   template <typename Arg_ = const std::string&, typename... Args_>
@@ -635,22 +634,12 @@ class DataPacket final : public ::google::protobuf::Message
   std::string* _internal_mutable_data();
 
   public:
-  // uint32 len = 1;
-  void clear_len() ;
-  ::uint32_t len() const;
-  void set_len(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_len() const;
-  void _internal_set_len(::uint32_t value);
-
-  public:
   // @@protoc_insertion_point(class_scope:DataPacket)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
+      0, 1, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -667,7 +656,6 @@ class DataPacket final : public ::google::protobuf::Message
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::ArenaStringPtr data_;
-    ::uint32_t len_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -728,9 +716,9 @@ class Packet final : public ::google::protobuf::Message
     return *internal_default_instance();
   }
   enum SubPacketCase {
-    kDataPacket = 5,
-    kFeedbackPacket = 6,
-    kProbePacket = 7,
+    kDataPacket = 6,
+    kFeedbackPacket = 7,
+    kProbePacket = 8,
     SUBPACKET_NOT_SET = 0,
   };
   static inline const Packet* internal_default_instance() {
@@ -811,9 +799,10 @@ class Packet final : public ::google::protobuf::Message
     kPacketTypeFieldNumber = 2,
     kFecTypeFieldNumber = 3,
     kFecIndexFieldNumber = 4,
-    kDataPacketFieldNumber = 5,
-    kFeedbackPacketFieldNumber = 6,
-    kProbePacketFieldNumber = 7,
+    kSubpacketLenFieldNumber = 5,
+    kDataPacketFieldNumber = 6,
+    kFeedbackPacketFieldNumber = 7,
+    kProbePacketFieldNumber = 8,
   };
   // uint64 seq_num = 1;
   void clear_seq_num() ;
@@ -855,7 +844,17 @@ class Packet final : public ::google::protobuf::Message
   void _internal_set_fec_index(::uint32_t value);
 
   public:
-  // .DataPacket data_packet = 5;
+  // uint32 subpacket_len = 5;
+  void clear_subpacket_len() ;
+  ::uint32_t subpacket_len() const;
+  void set_subpacket_len(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_subpacket_len() const;
+  void _internal_set_subpacket_len(::uint32_t value);
+
+  public:
+  // .DataPacket data_packet = 6;
   bool has_data_packet() const;
   private:
   bool _internal_has_data_packet() const;
@@ -874,7 +873,7 @@ class Packet final : public ::google::protobuf::Message
   ::DataPacket* _internal_mutable_data_packet();
 
   public:
-  // .FeedbackPacket feedback_packet = 6;
+  // .FeedbackPacket feedback_packet = 7;
   bool has_feedback_packet() const;
   private:
   bool _internal_has_feedback_packet() const;
@@ -893,7 +892,7 @@ class Packet final : public ::google::protobuf::Message
   ::FeedbackPacket* _internal_mutable_feedback_packet();
 
   public:
-  // .ProbePacket probe_packet = 7;
+  // .ProbePacket probe_packet = 8;
   bool has_probe_packet() const;
   private:
   bool _internal_has_probe_packet() const;
@@ -924,7 +923,7 @@ class Packet final : public ::google::protobuf::Message
   inline void clear_has_SubPacket();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 7, 3,
+      3, 8, 3,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -944,6 +943,7 @@ class Packet final : public ::google::protobuf::Message
     int packet_type_;
     int fec_type_;
     ::uint32_t fec_index_;
+    ::uint32_t subpacket_len_;
     union SubPacketUnion {
       constexpr SubPacketUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
@@ -975,29 +975,7 @@ class Packet final : public ::google::protobuf::Message
 
 // DataPacket
 
-// uint32 len = 1;
-inline void DataPacket::clear_len() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.len_ = 0u;
-}
-inline ::uint32_t DataPacket::len() const {
-  // @@protoc_insertion_point(field_get:DataPacket.len)
-  return _internal_len();
-}
-inline void DataPacket::set_len(::uint32_t value) {
-  _internal_set_len(value);
-  // @@protoc_insertion_point(field_set:DataPacket.len)
-}
-inline ::uint32_t DataPacket::_internal_len() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.len_;
-}
-inline void DataPacket::_internal_set_len(::uint32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.len_ = value;
-}
-
-// bytes data = 2;
+// bytes data = 1;
 inline void DataPacket::clear_data() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.data_.ClearToEmpty();
@@ -1280,7 +1258,29 @@ inline void Packet::_internal_set_fec_index(::uint32_t value) {
   _impl_.fec_index_ = value;
 }
 
-// .DataPacket data_packet = 5;
+// uint32 subpacket_len = 5;
+inline void Packet::clear_subpacket_len() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.subpacket_len_ = 0u;
+}
+inline ::uint32_t Packet::subpacket_len() const {
+  // @@protoc_insertion_point(field_get:Packet.subpacket_len)
+  return _internal_subpacket_len();
+}
+inline void Packet::set_subpacket_len(::uint32_t value) {
+  _internal_set_subpacket_len(value);
+  // @@protoc_insertion_point(field_set:Packet.subpacket_len)
+}
+inline ::uint32_t Packet::_internal_subpacket_len() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.subpacket_len_;
+}
+inline void Packet::_internal_set_subpacket_len(::uint32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.subpacket_len_ = value;
+}
+
+// .DataPacket data_packet = 6;
 inline bool Packet::has_data_packet() const {
   return SubPacket_case() == kDataPacket;
 }
@@ -1357,7 +1357,7 @@ inline ::DataPacket* Packet::mutable_data_packet() ABSL_ATTRIBUTE_LIFETIME_BOUND
   return _msg;
 }
 
-// .FeedbackPacket feedback_packet = 6;
+// .FeedbackPacket feedback_packet = 7;
 inline bool Packet::has_feedback_packet() const {
   return SubPacket_case() == kFeedbackPacket;
 }
@@ -1434,7 +1434,7 @@ inline ::FeedbackPacket* Packet::mutable_feedback_packet() ABSL_ATTRIBUTE_LIFETI
   return _msg;
 }
 
-// .ProbePacket probe_packet = 7;
+// .ProbePacket probe_packet = 8;
 inline bool Packet::has_probe_packet() const {
   return SubPacket_case() == kProbePacket;
 }

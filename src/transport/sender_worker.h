@@ -9,7 +9,7 @@ class SWorker{
 private:
     PacketCache<Packet> cache_;
     Config config_;
-    uint64_t seq_num_;
+    uint64_t seq_num_; // 下一个要发送的序列号
     BlockFecCodec codec_;
                     // timestamps  seq_num
     std::list<std::pair<uint64_t, uint64_t>> to_fec_encode_;

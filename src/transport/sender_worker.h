@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "packet.pb.h"
 #include "packet_cache.h"
@@ -18,14 +18,14 @@ private:
     void EncodeFecOnce(std::list<Packet*>& rtn);
     Packet* RegisterDataPacket(const DataPacket& packet);
     Packet* RegisterDataPacket(void* buffer, int len);
+
+    std::list<Packet*> HandleFeedBack(const Packet& packet);
+    std::list<Packet*> HandleProbe(const Packet& packet);
 public:
     SWorker(Config config);
 
 
     std::list<Packet*> RegisterPackets(const DataPacket& packet);
 
-    std::list<Packet> HandleFeedBack(const FeedbackPacket& feedback_packet);
-
-    ProbePacket HandleProbe(const FeedbackPacket& probe_packet);
-
+    std::list<Packet*> HandleReceive(const Packet& packet);
 };

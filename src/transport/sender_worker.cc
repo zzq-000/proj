@@ -8,7 +8,7 @@ SWorker::SWorker(Config config)
 Packet* SWorker::RegisterDataPacket(const DataPacket& packet) {
     // 使用 unique_ptr 来管理动态分配的内存
     std::unique_ptr<DataPacket> data = std::make_unique<DataPacket>(packet);
-    Packet* p = cache_.GetNextPlaceToCache();
+    Packet* p = cache_.GetNextPlaceToCache(seq_num_);
     
     // 将所有权转移给 Protobuf 对象
     p->set_allocated_data_packet(data.release());
@@ -17,7 +17,7 @@ Packet* SWorker::RegisterDataPacket(const DataPacket& packet) {
 }
 
 Packet* SWorker::RegisterDataPacket(void* buffer, int len) {
-    Packet* p = cache_.GetNextPlaceToCache();
+    Packet* p = cache_.GetNextPlaceToCache(seq_num_);
     std::unique_ptr<DataPacket> data = std::make_unique<DataPacket>();
     data->set_len(len);
     data->set_data(buffer, len);
@@ -83,7 +83,7 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
 
     codec_.Encode(buffer, type, encode_size);
     // LOG(INFO) << "encode_size: " << encode_size;
-    
+
     // 无法直接将Encode的数据直接作为DataPacket发送出去
     // 因为DataPacket.ParseFromArray()有可能失败？ TODO, 即便成功了，也要在DataPacket中添加一个长度， max_length, 提供给接收端作为decode_size
     // 因此直接将编码后的数组作为DataPacket的data字段， len设置为长度
@@ -136,5 +136,46 @@ std::list<Packet*> SWorker::RegisterPackets(const DataPacket& packet) {
             EncodeFecOnce(rtn);
         }
     }
+    return rtn;
+}
+
+std::list<Packet*> SWorker::HandleFeedBack(const Packet& packet) {
+    DCHECK_EQ(packet.has_feedback_packet(), true) << "error, not carry an invalid feedback packet";
+    std::list<Packet*> rtn;
+    int nack_size = packet.feedback_packet().nack_size();
+    for (int i = 0; i < nack_size; ++i) {
+        uint64_t seq = packet.feedback_packet().nack(i);
+        auto res = cache_.FindPacket(seq);
+        if (res) {
+            rtn.push_back(res);
+        }
+    }
+    return rtn;
+}
+
+std::list<Packet*> SWorker::HandleProbe(const Packet& packet) {
+    DCHECK_EQ(packet.has_probe_packet(), true) << "error, not carry an invalid probe packet";
+    if (!packet.probe_packet().request()) {
+        LOG(ERROR) << "invalid probe_packet";
+    }
+    std::unique_ptr<ProbePacket> resp_ptr = std::make_unique<ProbePacket>(packet.probe_packet());
+    resp_ptr->set_request(false);
+
+    Packet* p = cache_.GetNextPlaceToCache(packet.seq_num());
+
+    p->set_allocated_probe_packet(resp_ptr.release());
+    return {p};
+}
+
+std::list<Packet*> SWorker::HandleReceive(const Packet& packet) {
+    std::list<Packet*> rtn;
+    if (packet.has_data_packet()) {
+        LOG(FATAL) << "SWorker should not receive data packet";
+    } else if (packet.has_feedback_packet()) {
+        rtn = HandleFeedBack(packet);
+    } else if (packet.has_probe_packet()) {
+        rtn = HandleProbe(packet);
+    }
+
     return rtn;
 }

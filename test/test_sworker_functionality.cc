@@ -4,13 +4,13 @@
 #include "transport/transport_util.h"
 
 
-TEST(SWorker, DISABLED_FEC_NONE) {
+TEST(SWorker, RegisterPackets_without_FEC) {
     Config config = Config::GetDefaultConfig();
     SWorker worker(config);
 
     uint64_t seq_num = RandomSeqNum();
 
-    int kPacketNum = 1000;
+    int kPacketNum = 10000;
     std::vector<DataPacket> history;
     history.reserve(kPacketNum);
     for (int i = 0; i < kPacketNum; ++i) {
@@ -28,7 +28,7 @@ TEST(SWorker, DISABLED_FEC_NONE) {
     }
 }
 
-TEST(SWorker, FEC) {
+TEST(SWorker, RegisterPackets_with_FEC) {
     Config config = Config::GetDefaultConfig();
     config.fec_type = RandomFecType();
     FecInfo info = GetInfoAboutFEC(config.fec_type);

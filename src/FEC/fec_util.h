@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 
 #include <string>
@@ -20,4 +19,3 @@ struct FecInfo{
 
 
 FecInfo GetInfoAboutFEC(FecType t);
-#endif // UTIL_H

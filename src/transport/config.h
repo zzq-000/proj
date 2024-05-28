@@ -1,4 +1,4 @@
-
+#pragma once
 #include "FEC/fec_type.pb.h"
 
 constexpr int kMTU = 1500;

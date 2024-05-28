@@ -1,5 +1,5 @@
 #include <cstdint>
-#include "packet.h"
+#include "packet.pb.h"
 
 constexpr int kRecordLen = 10000;
 

@@ -14,5 +14,6 @@ add_executable(unittest
     test_packet_cache_functionality.cc
     test_packet_fec_encode.cc
     test_sworker_functionality.cc
+    test_sworker_and_rworker.cc
 )
 target_link_libraries(unittest GTest::gtest_main glog::glog transport fec util)

@@ -74,8 +74,12 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
             for (uint64_t i = start_seq; i < start_seq + info.TotalCount(); ++i) {
                 Packet* p = cache_.FindPacket(i);
                 if (p) {
-                    bool ret = p->data_packet().SerializeToArray(buffer_ + i * decode_size, p->data_packet().ByteSizeLong());
-                    DCHECK_EQ(ret, true) << "failed to serialize data packet to array";
+                    if (i < start_seq + info.data_cnt) {
+                        bool ret = p->data_packet().SerializeToArray(buffer_ + i * decode_size, p->data_packet().ByteSizeLong());
+                        DCHECK_EQ(ret, true) << "failed to serialize data packet to array";
+                    }else {
+                        memcpy(buffer_ + i * decode_size, p->data_packet().data().data(), p->data_packet().data().size());
+                    }
                     data[i] = buffer_ + i * decode_size;
                 }else {
                     data[i] = NULL;

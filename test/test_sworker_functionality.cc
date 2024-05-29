@@ -15,10 +15,12 @@ TEST(SWorker, RegisterPackets_without_FEC) {
     int kPacketNum = 10000;
     std::vector<DataPacket> history;
     history.reserve(kPacketNum);
+    std::list<Packet*> rtn;
     for (int i = 0; i < kPacketNum; ++i) {
+        rtn.clear();
         DataPacket d = RandomDataPacket();
         history.push_back(d);
-        auto rtn = worker.RegisterPackets(d);
+        worker.RegisterPackets(d, rtn);
 
         EXPECT_EQ(rtn.size(), 1);
 
@@ -48,11 +50,13 @@ TEST(SWorker, RegisterPackets_with_FEC) {
     history.reserve(kPacketNum);
     int history_index = 0;
     int seq_num = 0;
+    std::list<Packet*> rtn;
     for (int i = 0; i < kPacketNum; ++i) {
+        rtn.clear();
         DataPacket d = RandomDataPacket();
         history.push_back(d);
         // GTEST_LOG_(INFO) << i << " " << info.type << " " << d.ByteSizeLong();
-        auto rtn = worker.RegisterPackets(d);
+        worker.RegisterPackets(d, rtn);
 
         EXPECT_EQ(rtn.size() % info.TotalCount(), 0);
         if (rtn.size()) {

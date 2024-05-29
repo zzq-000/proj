@@ -20,13 +20,13 @@ private:
     Packet* RegisterDataPacket(const DataPacket& packet);
     Packet* RegisterDataPacket(void* buffer, int len);
 
-    std::list<Packet*> HandleFeedBack(const Packet& packet);
-    std::list<Packet*> HandleProbe(const Packet& packet);
+    void HandleFeedBack(const Packet& packet, std::list<Packet*>&);
+    void HandleProbe(const Packet& packet, std::list<Packet*>&);
 public:
     SWorker(Config config);
 
 
-    std::list<Packet*> RegisterPackets(const DataPacket& packet);
+    void RegisterPackets(const DataPacket& packet, std::list<Packet*>&);
 
-    std::list<Packet*> HandleReceive(const Packet& packet);
+    void HandleReceive(const Packet& packet, std::list<Packet*>&);
 };

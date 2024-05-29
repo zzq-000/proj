@@ -110,8 +110,7 @@ void SWorker::ClearFec(std::list<Packet*>& rtn) {
 }
 
 
-std::list<Packet*> SWorker::RegisterPackets(const DataPacket& packet) {
-    std::list<Packet*> rtn;
+void SWorker::RegisterPackets(const DataPacket& packet, std::list<Packet*>& rtn) {
     
     if (config_.fec_type == FecType::FEC_NONE) {
         ClearFec(rtn); // 如果还有等待FEC编码的包， 立即编码发送出去
@@ -134,12 +133,10 @@ std::list<Packet*> SWorker::RegisterPackets(const DataPacket& packet) {
             EncodeFecOnce(rtn);
         }
     }
-    return rtn;
 }
 
-std::list<Packet*> SWorker::HandleFeedBack(const Packet& packet) {
+void SWorker::HandleFeedBack(const Packet& packet, std::list<Packet*>& rtn) {
     DCHECK_EQ(packet.has_feedback_packet(), true) << "error, not carry an invalid feedback packet";
-    std::list<Packet*> rtn;
     int nack_size = packet.feedback_packet().nack_size();
     for (int i = 0; i < nack_size; ++i) {
         uint64_t seq = packet.feedback_packet().nack(i);
@@ -148,10 +145,9 @@ std::list<Packet*> SWorker::HandleFeedBack(const Packet& packet) {
             rtn.push_back(res);
         }
     }
-    return rtn;
 }
 
-std::list<Packet*> SWorker::HandleProbe(const Packet& packet) {
+void SWorker::HandleProbe(const Packet& packet, std::list<Packet*>& rtn) {
     DCHECK_EQ(packet.has_probe_packet(), true) << "error, not carry an invalid probe packet";
     if (!packet.probe_packet().request()) {
         LOG(ERROR) << "invalid probe_packet";
@@ -162,18 +158,15 @@ std::list<Packet*> SWorker::HandleProbe(const Packet& packet) {
     Packet* p = cache_.GetNextPlaceToCache(packet.seq_num());
 
     p->set_allocated_probe_packet(resp_ptr.release());
-    return {p};
+    rtn.push_back(p);
 }
 
-std::list<Packet*> SWorker::HandleReceive(const Packet& packet) {
-    std::list<Packet*> rtn;
+void SWorker::HandleReceive(const Packet& packet, std::list<Packet*>& rtn) {
     if (packet.has_data_packet()) {
         LOG(FATAL) << "SWorker should not receive data packet";
     } else if (packet.has_feedback_packet()) {
-        rtn = HandleFeedBack(packet);
+        HandleFeedBack(packet, rtn);
     } else if (packet.has_probe_packet()) {
-        rtn = HandleProbe(packet);
+        HandleProbe(packet, rtn);
     }
-
-    return rtn;
 }

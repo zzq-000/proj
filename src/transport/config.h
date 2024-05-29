@@ -4,8 +4,8 @@
 constexpr int kMTU = 1500;
 constexpr int kUDPHeader = 8;
 constexpr int kIPHeader = 20;
-constexpr int KMaxPayloadLen = kMTU - kUDPHeader - kIPHeader;
-
+constexpr int kMaxPayloadLen = kMTU - kUDPHeader - kIPHeader;
+constexpr int kMaxFecTotalPackets = 20;
 struct Config{
 
     bool enable_nack;

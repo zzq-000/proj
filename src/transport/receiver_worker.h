@@ -11,14 +11,17 @@
 class RWorker {
 
 private:
+    static constexpr int kBufferSize = kMaxPayloadLen * kMaxFecTotalPackets;
     Config config_;
     PacketCache<Packet> cache_;
     BlockFecCodec codec_;
     uint64_t last_submit_seq_;
     uint64_t last_submit_time_;
     bool received_first_;
+    uint8_t* buffer_;
 public:
     RWorker(Config config);
     std::list<DataPacket*> GetApplicationMessages(const Packet& packet);
     std::list<Packet*> GetFeedback() const;
+    ~RWorker();
 };

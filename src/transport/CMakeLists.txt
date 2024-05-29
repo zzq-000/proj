@@ -24,6 +24,7 @@ protobuf_generate(
 add_library(transport 
     packet_cache.cc
     sender_worker.cc
+    receiver_worker.cc
 )
 target_link_libraries(transport packet fec_type glog::glog)
 target_include_directories(transport INTERFACE ${PROJECT_SOURCE_DIR}/src)

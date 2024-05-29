@@ -2,7 +2,11 @@
 #include "util/timestamp.h"
 
 RWorker::RWorker(Config config): 
-    config_(config), cache_(), codec_(), last_submit_seq_(0), last_submit_time_(0), received_first_(false) {}
+    config_(config), cache_(), codec_(), 
+    last_submit_seq_(0), last_submit_time_(0), received_first_(false),
+    buffer_(NULL) {
+        buffer_ = new uint8_t[kBufferSize];
+    }
 
 
 //尽力而为按序交付
@@ -64,28 +68,46 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
             for (uint64_t i = start_seq + info.data_cnt; i < start_seq + info.TotalCount(); ++i) {
                 Packet* p = cache_.FindPacket(i);
                 if (p) {
-                    decode_size = p->subpacket_len();
+                    decode_size = p->data_packet().len();
                     break;
                 }
             }
             assert(decode_size != 0);
-            uint8_t* buffer = new uint8_t[decode_size * info.TotalCount()];
             std::vector<void*> data(info.TotalCount());
             for (uint64_t i = start_seq; i < start_seq + info.TotalCount(); ++i) {
                 Packet* p = cache_.FindPacket(i);
                 if (p) {
-                    bool ret = p->data_packet().SerializeToArray(buffer + i * decode_size, p->data_packet().ByteSizeLong());
+                    bool ret = p->data_packet().SerializeToArray(buffer_ + i * decode_size, p->data_packet().ByteSizeLong());
                     DCHECK_EQ(ret, true) << "failed to serialize data packet to array";
-                    data[i] = buffer + i * decode_size;
+                    data[i] = buffer_ + i * decode_size;
                 }else {
                     data[i] = NULL;
                 }
-                // p->FromA
             }
             bool decode_ans = codec_.Decode(data, type, decode_size);
             DCHECK_EQ(decode_ans, true) << "failed to decode data";
+            for (uint64_t i = start_seq; i < start_seq + info.data_cnt; ++i) {
+                Packet* p = cache_.FindPacket(i);
+                if (p) {
+                    rtn.push_back(const_cast<DataPacket*>(&(p->data_packet())));
+                }else {
+                    std::unique_ptr<DataPacket> ptr = std::make_unique<DataPacket>();
+                    ptr->ParseFromArray(data[i], decode_size);
 
+                    assert(ptr->data().size() >= ptr->len());
 
+                    std::string s = ptr->data().substr(0, ptr->len());
+                    ptr->set_data(s.data(), s.size());
+                    Packet* tmp_ptr = cache_.GetNextPlaceToCache(i);
+                    tmp_ptr->set_allocated_data_packet(ptr.release());
+                    tmp_ptr->set_fec_index(i - start_seq);
+                    tmp_ptr->set_seq_num(i);
+                    rtn.push_back(const_cast<DataPacket*>(&(tmp_ptr->data_packet())));
+                }
+            }
+            last_submit_seq_ = start_seq + info.TotalCount() - 1;
+            last_submit_time_ = timestamp_ms();
+            // for ()
             //   可以恢复
         }else {
             // 1. 真的丢失了， 无法恢复
@@ -110,4 +132,11 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
     return rtn;
 
     
+}
+
+RWorker::~RWorker() {
+    if (buffer_) {
+        delete[] buffer_;
+        buffer_ = NULL;
+    }
 }

@@ -26,7 +26,6 @@ TEST(Packet_FEC, Basic_Encode) {
         DataPacket* data = new DataPacket;
         Packet p = RandomPacket(seq_num++);
         p.set_allocated_data_packet(data);
-        p.set_subpacket_len(data->ByteSizeLong());
         packets.push_back(p);
     }
 

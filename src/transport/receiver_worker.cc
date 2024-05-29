@@ -60,6 +60,32 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
             last_submit_seq_ = start_seq + info.TotalCount() - 1;
             last_submit_time_ = timestamp_ms();
         } else if (loss_num <= info.redundancy_cnt) {
+            int decode_size = 0;
+            for (uint64_t i = start_seq + info.data_cnt; i < start_seq + info.TotalCount(); ++i) {
+                Packet* p = cache_.FindPacket(i);
+                if (p) {
+                    decode_size = p->subpacket_len();
+                    break;
+                }
+            }
+            assert(decode_size != 0);
+            uint8_t* buffer = new uint8_t[decode_size * info.TotalCount()];
+            std::vector<void*> data(info.TotalCount());
+            for (uint64_t i = start_seq; i < start_seq + info.TotalCount(); ++i) {
+                Packet* p = cache_.FindPacket(i);
+                if (p) {
+                    bool ret = p->data_packet().SerializeToArray(buffer + i * decode_size, p->data_packet().ByteSizeLong());
+                    DCHECK_EQ(ret, true) << "failed to serialize data packet to array";
+                    data[i] = buffer + i * decode_size;
+                }else {
+                    data[i] = NULL;
+                }
+                // p->FromA
+            }
+            bool decode_ans = codec_.Decode(data, type, decode_size);
+            DCHECK_EQ(decode_ans, true) << "failed to decode data";
+
+
             //   可以恢复
         }else {
             // 1. 真的丢失了， 无法恢复

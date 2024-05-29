@@ -69,6 +69,7 @@ inline constexpr DataPacket::Impl_::Impl_(
       : data_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
+        len_{0u},
         _cached_size_{0} {}
 
 template <typename>
@@ -91,7 +92,6 @@ inline constexpr Packet::Impl_::Impl_(
         packet_type_{static_cast< ::PacketType >(0)},
         fec_type_{static_cast< ::FecType >(0)},
         fec_index_{0u},
-        subpacket_len_{0u},
         SubPacket_{},
         _cached_size_{0},
         _oneof_case_{} {}
@@ -124,6 +124,7 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::DataPacket, _impl_.len_),
         PROTOBUF_FIELD_OFFSET(::DataPacket, _impl_.data_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::FeedbackPacket, _internal_metadata_),
@@ -158,7 +159,6 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::Packet, _impl_.packet_type_),
         PROTOBUF_FIELD_OFFSET(::Packet, _impl_.fec_type_),
         PROTOBUF_FIELD_OFFSET(::Packet, _impl_.fec_index_),
-        PROTOBUF_FIELD_OFFSET(::Packet, _impl_.subpacket_len_),
         ::_pbi::kInvalidFieldOffsetTag,
         ::_pbi::kInvalidFieldOffsetTag,
         ::_pbi::kInvalidFieldOffsetTag,
@@ -168,9 +168,9 @@ const ::uint32_t
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, -1, -1, sizeof(::DataPacket)},
-        {9, -1, -1, sizeof(::FeedbackPacket)},
-        {20, -1, -1, sizeof(::ProbePacket)},
-        {30, -1, -1, sizeof(::Packet)},
+        {10, -1, -1, sizeof(::FeedbackPacket)},
+        {21, -1, -1, sizeof(::ProbePacket)},
+        {31, -1, -1, sizeof(::Packet)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::_DataPacket_default_instance_._instance,
@@ -180,22 +180,22 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 const char descriptor_table_protodef_packet_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\014packet.proto\032\022FEC/fec_type.proto\"\032\n\nDa"
-    "taPacket\022\014\n\004data\030\001 \001(\014\"=\n\016FeedbackPacket"
-    "\022\020\n\010lossrate\030\001 \001(\001\022\013\n\003rtt\030\002 \001(\r\022\014\n\004nack\030"
-    "\003 \003(\004\"/\n\013ProbePacket\022\017\n\007seq_num\030\001 \001(\004\022\017\n"
-    "\007request\030\002 \001(\010\"\204\002\n\006Packet\022\017\n\007seq_num\030\001 \001"
-    "(\004\022 \n\013packet_type\030\002 \001(\0162\013.PacketType\022\032\n\010"
-    "fec_type\030\003 \001(\0162\010.FecType\022\021\n\tfec_index\030\004 "
-    "\001(\r\022\025\n\rsubpacket_len\030\005 \001(\r\022\"\n\013data_packe"
-    "t\030\006 \001(\0132\013.DataPacketH\000\022*\n\017feedback_packe"
-    "t\030\007 \001(\0132\017.FeedbackPacketH\000\022$\n\014probe_pack"
-    "et\030\010 \001(\0132\014.ProbePacketH\000B\013\n\tSubPacket*\274\001"
-    "\n\nPacketType\022\020\n\014DataPacketId\020\000\022\024\n\020Feedba"
-    "ckPacketId\020\001\022\030\n\024ProbeRequestPacketId\020\002\022\031"
-    "\n\025ProbeResponsePacketId\020\003\022\032\n\026SessionRequ"
-    "estPacketId\020\004\022\033\n\027SessionResponsePacketId"
-    "\020\005\022\030\n\024SessionStartPacketId\020\006b\006proto3"
+    "\n\014packet.proto\032\022FEC/fec_type.proto\"\'\n\nDa"
+    "taPacket\022\013\n\003len\030\001 \001(\r\022\014\n\004data\030\002 \001(\014\"=\n\016F"
+    "eedbackPacket\022\020\n\010lossrate\030\001 \001(\001\022\013\n\003rtt\030\002"
+    " \001(\r\022\014\n\004nack\030\003 \003(\004\"/\n\013ProbePacket\022\017\n\007seq"
+    "_num\030\001 \001(\004\022\017\n\007request\030\002 \001(\010\"\355\001\n\006Packet\022\017"
+    "\n\007seq_num\030\001 \001(\004\022 \n\013packet_type\030\002 \001(\0162\013.P"
+    "acketType\022\032\n\010fec_type\030\003 \001(\0162\010.FecType\022\021\n"
+    "\tfec_index\030\004 \001(\r\022\"\n\013data_packet\030\005 \001(\0132\013."
+    "DataPacketH\000\022*\n\017feedback_packet\030\006 \001(\0132\017."
+    "FeedbackPacketH\000\022$\n\014probe_packet\030\007 \001(\0132\014"
+    ".ProbePacketH\000B\013\n\tSubPacket*\274\001\n\nPacketTy"
+    "pe\022\020\n\014DataPacketId\020\000\022\024\n\020FeedbackPacketId"
+    "\020\001\022\030\n\024ProbeRequestPacketId\020\002\022\031\n\025ProbeRes"
+    "ponsePacketId\020\003\022\032\n\026SessionRequestPacketI"
+    "d\020\004\022\033\n\027SessionResponsePacketId\020\005\022\030\n\024Sess"
+    "ionStartPacketId\020\006b\006proto3"
 };
 static const ::_pbi::DescriptorTable* const descriptor_table_packet_2eproto_deps[1] =
     {
@@ -205,7 +205,7 @@ static ::absl::once_flag descriptor_table_packet_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_packet_2eproto = {
     false,
     false,
-    636,
+    626,
     descriptor_table_protodef_packet_2eproto,
     "packet.proto",
     &descriptor_table_packet_2eproto_once,
@@ -269,6 +269,7 @@ DataPacket::DataPacket(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  _impl_.len_ = from._impl_.len_;
 
   // @@protoc_insertion_point(copy_constructor:DataPacket)
 }
@@ -280,6 +281,7 @@ inline PROTOBUF_NDEBUG_INLINE DataPacket::Impl_::Impl_(
 
 inline void DataPacket::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.len_ = {};
 }
 DataPacket::~DataPacket() {
   // @@protoc_insertion_point(destructor:DataPacket)
@@ -314,6 +316,7 @@ PROTOBUF_NOINLINE void DataPacket::Clear() {
   (void) cached_has_bits;
 
   _impl_.data_.ClearToEmpty();
+  _impl_.len_ = 0u;
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -325,15 +328,15 @@ const char* DataPacket::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> DataPacket::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2> DataPacket::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     &_DataPacket_default_instance_._instance,
@@ -342,13 +345,19 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> DataPacket::_table_ = {
     ::_pbi::TcParser::GetTable<::DataPacket>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // bytes data = 1;
+    // bytes data = 2;
     {::_pbi::TcParser::FastBS1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DataPacket, _impl_.data_)}},
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(DataPacket, _impl_.data_)}},
+    // uint32 len = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DataPacket, _impl_.len_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(DataPacket, _impl_.len_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // bytes data = 1;
+    // uint32 len = 1;
+    {PROTOBUF_FIELD_OFFSET(DataPacket, _impl_.len_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUInt32)},
+    // bytes data = 2;
     {PROTOBUF_FIELD_OFFSET(DataPacket, _impl_.data_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
   }},
@@ -364,10 +373,17 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> DataPacket::_table_ = {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // bytes data = 1;
+  // uint32 len = 1;
+  if (this->_internal_len() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+        1, this->_internal_len(), target);
+  }
+
+  // bytes data = 2;
   if (!this->_internal_data().empty()) {
     const std::string& _s = this->_internal_data();
-    target = stream->WriteBytesMaybeAliased(1, _s, target);
+    target = stream->WriteBytesMaybeAliased(2, _s, target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -387,10 +403,16 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> DataPacket::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // bytes data = 1;
+  // bytes data = 2;
   if (!this->_internal_data().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
                                     this->_internal_data());
+  }
+
+  // uint32 len = 1;
+  if (this->_internal_len() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+        this->_internal_len());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -407,6 +429,9 @@ void DataPacket::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
 
   if (!from._internal_data().empty()) {
     _this->_internal_set_data(from._internal_data());
+  }
+  if (from._internal_len() != 0) {
+    _this->_impl_.len_ = from._impl_.len_;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -428,6 +453,7 @@ void DataPacket::InternalSwap(DataPacket* PROTOBUF_RESTRICT other) {
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.data_, &other->_impl_.data_, arena);
+        swap(_impl_.len_, other->_impl_.len_);
 }
 
 ::google::protobuf::Metadata DataPacket::GetMetadata() const {
@@ -997,9 +1023,9 @@ Packet::Packet(
                offsetof(Impl_, seq_num_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, seq_num_),
-           offsetof(Impl_, subpacket_len_) -
+           offsetof(Impl_, fec_index_) -
                offsetof(Impl_, seq_num_) +
-               sizeof(Impl_::subpacket_len_));
+               sizeof(Impl_::fec_index_));
   switch (SubPacket_case()) {
     case SUBPACKET_NOT_SET:
       break;
@@ -1028,9 +1054,9 @@ inline void Packet::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, seq_num_),
            0,
-           offsetof(Impl_, subpacket_len_) -
+           offsetof(Impl_, fec_index_) -
                offsetof(Impl_, seq_num_) +
-               sizeof(Impl_::subpacket_len_));
+               sizeof(Impl_::fec_index_));
 }
 Packet::~Packet() {
   // @@protoc_insertion_point(destructor:Packet)
@@ -1097,8 +1123,8 @@ PROTOBUF_NOINLINE void Packet::Clear() {
   (void) cached_has_bits;
 
   ::memset(&_impl_.seq_num_, 0, static_cast<::size_t>(
-      reinterpret_cast<char*>(&_impl_.subpacket_len_) -
-      reinterpret_cast<char*>(&_impl_.seq_num_)) + sizeof(_impl_.subpacket_len_));
+      reinterpret_cast<char*>(&_impl_.fec_index_) -
+      reinterpret_cast<char*>(&_impl_.seq_num_)) + sizeof(_impl_.fec_index_));
   clear_SubPacket();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1111,15 +1137,15 @@ const char* Packet::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 8, 3, 0, 2> Packet::_table_ = {
+const ::_pbi::TcParseTable<2, 7, 3, 0, 2> Packet::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    8, 56,  // max_field_number, fast_idx_mask
+    7, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967040,  // skipmap
+    4294967168,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    8,  // num_field_entries
+    7,  // num_field_entries
     3,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     &_Packet_default_instance_._instance,
@@ -1128,7 +1154,9 @@ const ::_pbi::TcParseTable<3, 8, 3, 0, 2> Packet::_table_ = {
     ::_pbi::TcParser::GetTable<::Packet>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // uint32 fec_index = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Packet, _impl_.fec_index_), 63>(),
+     {32, 63, 0, PROTOBUF_FIELD_OFFSET(Packet, _impl_.fec_index_)}},
     // uint64 seq_num = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Packet, _impl_.seq_num_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(Packet, _impl_.seq_num_)}},
@@ -1138,14 +1166,6 @@ const ::_pbi::TcParseTable<3, 8, 3, 0, 2> Packet::_table_ = {
     // .FecType fec_type = 3;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Packet, _impl_.fec_type_), 63>(),
      {24, 63, 0, PROTOBUF_FIELD_OFFSET(Packet, _impl_.fec_type_)}},
-    // uint32 fec_index = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Packet, _impl_.fec_index_), 63>(),
-     {32, 63, 0, PROTOBUF_FIELD_OFFSET(Packet, _impl_.fec_index_)}},
-    // uint32 subpacket_len = 5;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Packet, _impl_.subpacket_len_), 63>(),
-     {40, 63, 0, PROTOBUF_FIELD_OFFSET(Packet, _impl_.subpacket_len_)}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -1161,16 +1181,13 @@ const ::_pbi::TcParseTable<3, 8, 3, 0, 2> Packet::_table_ = {
     // uint32 fec_index = 4;
     {PROTOBUF_FIELD_OFFSET(Packet, _impl_.fec_index_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUInt32)},
-    // uint32 subpacket_len = 5;
-    {PROTOBUF_FIELD_OFFSET(Packet, _impl_.subpacket_len_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUInt32)},
-    // .DataPacket data_packet = 6;
+    // .DataPacket data_packet = 5;
     {PROTOBUF_FIELD_OFFSET(Packet, _impl_.SubPacket_.data_packet_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
-    // .FeedbackPacket feedback_packet = 7;
+    // .FeedbackPacket feedback_packet = 6;
     {PROTOBUF_FIELD_OFFSET(Packet, _impl_.SubPacket_.feedback_packet_), _Internal::kOneofCaseOffset + 0, 1,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
-    // .ProbePacket probe_packet = 8;
+    // .ProbePacket probe_packet = 7;
     {PROTOBUF_FIELD_OFFSET(Packet, _impl_.SubPacket_.probe_packet_), _Internal::kOneofCaseOffset + 0, 2,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
@@ -1216,27 +1233,20 @@ const ::_pbi::TcParseTable<3, 8, 3, 0, 2> Packet::_table_ = {
         4, this->_internal_fec_index(), target);
   }
 
-  // uint32 subpacket_len = 5;
-  if (this->_internal_subpacket_len() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-        5, this->_internal_subpacket_len(), target);
-  }
-
   switch (SubPacket_case()) {
     case kDataPacket: {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-          6, *_impl_.SubPacket_.data_packet_, _impl_.SubPacket_.data_packet_->GetCachedSize(), target, stream);
+          5, *_impl_.SubPacket_.data_packet_, _impl_.SubPacket_.data_packet_->GetCachedSize(), target, stream);
       break;
     }
     case kFeedbackPacket: {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-          7, *_impl_.SubPacket_.feedback_packet_, _impl_.SubPacket_.feedback_packet_->GetCachedSize(), target, stream);
+          6, *_impl_.SubPacket_.feedback_packet_, _impl_.SubPacket_.feedback_packet_->GetCachedSize(), target, stream);
       break;
     }
     case kProbePacket: {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-          8, *_impl_.SubPacket_.probe_packet_, _impl_.SubPacket_.probe_packet_->GetCachedSize(), target, stream);
+          7, *_impl_.SubPacket_.probe_packet_, _impl_.SubPacket_.probe_packet_->GetCachedSize(), target, stream);
       break;
     }
     default:
@@ -1283,26 +1293,20 @@ const ::_pbi::TcParseTable<3, 8, 3, 0, 2> Packet::_table_ = {
         this->_internal_fec_index());
   }
 
-  // uint32 subpacket_len = 5;
-  if (this->_internal_subpacket_len() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-        this->_internal_subpacket_len());
-  }
-
   switch (SubPacket_case()) {
-    // .DataPacket data_packet = 6;
+    // .DataPacket data_packet = 5;
     case kDataPacket: {
       total_size +=
           1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.SubPacket_.data_packet_);
       break;
     }
-    // .FeedbackPacket feedback_packet = 7;
+    // .FeedbackPacket feedback_packet = 6;
     case kFeedbackPacket: {
       total_size +=
           1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.SubPacket_.feedback_packet_);
       break;
     }
-    // .ProbePacket probe_packet = 8;
+    // .ProbePacket probe_packet = 7;
     case kProbePacket: {
       total_size +=
           1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.SubPacket_.probe_packet_);
@@ -1336,9 +1340,6 @@ void Packet::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::
   }
   if (from._internal_fec_index() != 0) {
     _this->_impl_.fec_index_ = from._impl_.fec_index_;
-  }
-  if (from._internal_subpacket_len() != 0) {
-    _this->_impl_.subpacket_len_ = from._impl_.subpacket_len_;
   }
   if (const uint32_t oneof_from_case = from._impl_._oneof_case_[0]) {
     const uint32_t oneof_to_case = _this->_impl_._oneof_case_[0];
@@ -1400,8 +1401,8 @@ void Packet::InternalSwap(Packet* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Packet, _impl_.subpacket_len_)
-      + sizeof(Packet::_impl_.subpacket_len_)
+      PROTOBUF_FIELD_OFFSET(Packet, _impl_.fec_index_)
+      + sizeof(Packet::_impl_.fec_index_)
       - PROTOBUF_FIELD_OFFSET(Packet, _impl_.seq_num_)>(
           reinterpret_cast<char*>(&_impl_.seq_num_),
           reinterpret_cast<char*>(&other->_impl_.seq_num_));

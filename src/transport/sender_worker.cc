@@ -20,7 +20,7 @@ Packet* SWorker::RegisterDataPacket(void* buffer, int len) {
     Packet* p = cache_.GetNextPlaceToCache(seq_num_);
     std::unique_ptr<DataPacket> data = std::make_unique<DataPacket>();
     data->set_data(buffer, len);
-    p->set_subpacket_len(data->ByteSizeLong());
+    data->set_len(len);
     p->set_allocated_data_packet(data.release());
     p->set_seq_num(seq_num_++);
     return p;
@@ -68,7 +68,6 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
         Packet* p = RegisterDataPacket(DataPacket());
         p->set_fec_type(type);
         p->set_fec_index(i);
-        p->set_subpacket_len(0);
         packets[i] = p;
     }
 

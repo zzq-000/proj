@@ -13,7 +13,8 @@ enum PacketType {
 }
 
 message DataPacket {
-    bytes data = 1;
+    uint32 len = 1;
+    bytes data = 2;
 }
 
 message FeedbackPacket {
@@ -35,10 +36,10 @@ message Packet {
 
     FecType fec_type = 3;
     uint32 fec_index = 4;
-    uint32 subpacket_len = 5;
+    // uint32 subpacket_len = 5;
     oneof SubPacket {
-        DataPacket data_packet = 6;
-        FeedbackPacket feedback_packet = 7;
-        ProbePacket probe_packet = 8;
+        DataPacket data_packet = 5;
+        FeedbackPacket feedback_packet = 6;
+        ProbePacket probe_packet = 7;
     }
 }

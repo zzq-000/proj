@@ -44,17 +44,17 @@ TEST(Vector, pointer) {
 
 TEST(Packet, Const_reference) {
     Packet p = RandomPacket(0);
-    GTEST_LOG_(INFO) << p.subpacket_len();
-    // const_cast<DataPacket&>(p.data_packet()).set_len(100);
-    // GTEST_LOG_(INFO) << p.data_packet().len();
-    // EXPECT_EQ(p.data_packet().len(), 100);
+    // GTEST_LOG_(INFO) << p.subpacket_len();
+    const_cast<DataPacket&>(p.data_packet()).set_len(100);
+    GTEST_LOG_(INFO) << p.data_packet().len();
+    EXPECT_EQ(p.data_packet().len(), 100);
 
 }
 
 TEST(Packet, Const_pointer) {
     Packet p = RandomPacket(0);
-    GTEST_LOG_(INFO) << p.subpacket_len();
-    // const_cast<DataPacket*>(&(p.data_packet()))->set_len(100);
-    // EXPECT_EQ(p.data_packet().len(), 100);
-    // GTEST_LOG_(INFO) << p.data_packet().len();
+    // GTEST_LOG_(INFO) << p.subpacket_len();
+    const_cast<DataPacket*>(&(p.data_packet()))->set_len(100);
+    EXPECT_EQ(p.data_packet().len(), 100);
+    GTEST_LOG_(INFO) << p.data_packet().len();
 }

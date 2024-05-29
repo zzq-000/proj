@@ -3,10 +3,7 @@
 
 RWorker::RWorker(Config config): 
     config_(config), cache_(), codec_(), 
-    last_submit_seq_(0), last_submit_time_(0), received_first_(false),
-    buffer_(NULL) {
-        buffer_ = new uint8_t[kBufferSize];
-    }
+    last_submit_seq_(0), last_submit_time_(0), received_first_(false) { }
 
 
 //尽力而为按序交付
@@ -132,11 +129,4 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
     return rtn;
 
     
-}
-
-RWorker::~RWorker() {
-    if (buffer_) {
-        delete[] buffer_;
-        buffer_ = NULL;
-    }
 }

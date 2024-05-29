@@ -43,7 +43,7 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
 
     int data_packet_num = std::min(info.data_cnt, static_cast<int>(to_fec_encode_.size()));
     // LOG(INFO) << "data_packet_num: " << data_packet_num; 
-    std::vector<void*> buffer(info.TotalCount());
+    std::vector<void*> data(info.TotalCount());
     std::vector<Packet*> packets(info.TotalCount());
     int encode_size = 0;
     
@@ -71,17 +71,16 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
         packets[i] = p;
     }
 
-    uint8_t* allocated_array = new uint8_t[encode_size * info.TotalCount()];
     // 准备FEC encode数据
     for (int i = 0; i < info.TotalCount(); ++i) {
-        buffer[i] = allocated_array + encode_size;
+        data[i] = buffer_ + encode_size;
         if (i < info.data_cnt) {
             assert(packets.at(i)->data_packet().ByteSizeLong() <= encode_size);
-            packets.at(i)->data_packet().SerializeToArray(buffer[i], packets.at(i)->data_packet().ByteSizeLong());
+            packets.at(i)->data_packet().SerializeToArray(data[i], packets.at(i)->data_packet().ByteSizeLong());
         }
     }
 
-    codec_.Encode(buffer, type, encode_size);
+    codec_.Encode(data, type, encode_size);
     // LOG(INFO) << "encode_size: " << encode_size;
 
     // 无法直接将Encode的数据直接作为DataPacket发送出去
@@ -89,7 +88,7 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
     // 因此直接将编码后的数组作为DataPacket的data字段， len设置为长度
     // 这样接收端就可以直接从冗余数据包中获取decode_length
     for (int i = info.data_cnt; i < info.TotalCount(); ++i) {
-        Packet* p = RegisterDataPacket(buffer[i], encode_size);
+        Packet* p = RegisterDataPacket(data[i], encode_size);
         p->set_fec_index(i);
         p->set_fec_type(type);
         packets[i] = p;
@@ -98,7 +97,6 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
     for(int i = 0; i < packets.size(); ++i) {
         rtn.push_back(packets[i]);
     }
-    delete[] allocated_array;
 
 }
 

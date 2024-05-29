@@ -13,6 +13,7 @@ private:
     BlockFecCodec codec_;
                     // timestamps  seq_num
     std::list<std::pair<uint64_t, uint64_t>> to_fec_encode_;
+    uint8_t buffer_[kMaxPayloadLen * kMaxFecTotalPackets];
 
     void ClearFec(std::list<Packet*>& rtn);
     void EncodeFecOnce(std::list<Packet*>& rtn);

@@ -21,6 +21,6 @@ private:
     uint8_t buffer_[kMaxFecTotalPackets * kMaxPayloadLen];
 public:
     RWorker(Config config);
-    std::list<DataPacket*> GetApplicationMessages(const Packet& packet);
+    void GetApplicationMessages(const Packet& packet, std::list<DataPacket*>&);
     std::list<Packet*> GetFeedback() const;
 };

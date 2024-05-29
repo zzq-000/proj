@@ -9,8 +9,7 @@ RWorker::RWorker(Config config):
 //尽力而为按序交付
 
 // TODO, 如何触发nack
-std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
-    std::list<DataPacket*> rtn;
+void RWorker::GetApplicationMessages(const Packet& packet, std::list<DataPacket*>& rtn) {
     cache_.CachePacket(packet);
     FecType type = packet.fec_type();
     FecInfo info = GetInfoAboutFEC(type);
@@ -29,12 +28,12 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
 
         // 该组信息已被提交
         if (start_seq + info.TotalCount() <= last_submit_seq_) {
-            return rtn;
+            return;
         }
 
         // 乱序收到后一个包组的包， 不用处理
         if (start_seq != last_submit_seq_ + 1) {
-            return rtn;
+            return;
         }
         
         assert(start_seq == last_submit_seq_ + 1);
@@ -130,7 +129,6 @@ std::list<DataPacket*> RWorker::GetApplicationMessages(const Packet& packet) {
             
         }
     }
-    return rtn;
 
     
 }

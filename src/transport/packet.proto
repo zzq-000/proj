@@ -13,7 +13,7 @@ enum PacketType {
 }
 
 message DataPacket {
-    uint32 len = 1;
+    uint32 len = 1; // DataPacket.ByteSizeLong
     bytes data = 2;
 }
 

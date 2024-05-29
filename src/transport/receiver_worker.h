@@ -15,7 +15,7 @@ private:
     Config config_;
     PacketCache<Packet> cache_;
     BlockFecCodec codec_;
-    uint64_t last_submit_seq_;
+    uint64_t next_submit_seq_;
     uint64_t last_submit_time_;
     bool received_first_;
     uint8_t buffer_[kMaxFecTotalPackets * kMaxPayloadLen];

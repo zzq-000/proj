@@ -3,6 +3,8 @@
 #include "packet.pb.h"
 #include "transport/transport_util.h"
 #include <google/protobuf/util/message_differencer.h>
+#include <google/protobuf/message.h>
+
 
 TEST(Packet, BasicCopy) {
     uint64_t seq_num = RandomSeqNum();
@@ -57,4 +59,27 @@ TEST(Packet, Const_pointer) {
     const_cast<DataPacket*>(&(p.data_packet()))->set_len(100);
     EXPECT_EQ(p.data_packet().len(), 100);
     GTEST_LOG_(INFO) << p.data_packet().len();
+}
+TEST(DataPacket, serialize_and_deserialize) {
+    srand(time(NULL));
+    for (int i = 0; i < 20000; ++i) {
+        DataPacket p = RandomDataPacket();
+        uint8_t buffer[1500];
+        // memset(buffer, 0, sizeof buffer);
+        p.SerializeToArray(buffer, p.ByteSizeLong());
+        // GTEST_LOG_(INFO) << p.ByteSizeLong();
+        google::protobuf::io::ArrayInputStream array_input_stream(buffer, 1500);
+        google::protobuf::io::CodedInputStream coded_input_stream(&array_input_stream);
+
+        uint32_t len = 0;
+        coded_input_stream.ReadTag();
+        coded_input_stream.ReadVarint32(&len);
+        EXPECT_EQ(p.len(), p.ByteSizeLong());
+        EXPECT_EQ(len, p.len());
+        EXPECT_EQ(len, p.ByteSizeLong());
+        DataPacket rhs;
+        rhs.ParseFromArray(buffer, len);
+        EXPECT_EQ(p.DebugString(), rhs.DebugString());
+
+    }
 }

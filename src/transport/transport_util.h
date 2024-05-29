@@ -1,5 +1,6 @@
 #pragma once
 #include "packet.pb.h"
+#include "config.h"
 #include "FEC/fec_util.h"
 #include <string>
 
@@ -26,8 +27,22 @@ inline DataPacket RandomDataPacket() {
         buffer[i] = rand() % UINT8_MAX;
     }
     p.set_data(buffer, len);
-    p.set_len(len);
+    size_t s1 = p.ByteSizeLong();
+    p.set_len(p.ByteSizeLong());
+    size_t s2 = p.ByteSizeLong();
+    p.set_len(p.ByteSizeLong());
+    size_t s3 = p.ByteSizeLong();
+    p.set_len(p.ByteSizeLong());
+    if (s3 != p.ByteSizeLong()) {
+        LOG(INFO) << s1 << " " << s2 << " " << s3 << " " << p.ByteSizeLong() << " " << len;
+    }
+    // Now set the len field to the full serialized size
+    // LOG(INFO) << p.len() << " " << p.ByteSizeLong();
+    // assert(p.len() == p.ByteSizeLong());
     delete[] buffer;
+    if (p.ByteSizeLong() > kMaxPayloadLen) {
+        return RandomDataPacket();
+    }
     return p;
 }
 

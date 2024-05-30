@@ -70,10 +70,12 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
         p->set_fec_index(i);
         packets[i] = p;
     }
-
+    // 很重要， 每一次encode的时候，需要将buffer置0， 因为各个包的长度不一样， 需要确保padding的内容是一致的
+    // 在decode时，也需要将buffer置0，确保padding内容一致， 否则会导致无法解码（相当于正常接收到的数据包在padding之后， 和原始的不一致）
+    memset(buffer_, 0, sizeof(buffer_));
     // 准备FEC encode数据
     for (int i = 0; i < info.TotalCount(); ++i) {
-        data[i] = buffer_ + encode_size;
+        data[i] = buffer_ + i * encode_size;
         if (i < info.data_cnt) {
             assert(packets.at(i)->data_packet().ByteSizeLong() <= encode_size);
             packets.at(i)->data_packet().SerializeToArray(data[i], packets.at(i)->data_packet().ByteSizeLong());
@@ -82,6 +84,19 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
 
     codec_.Encode(data, type, encode_size);
     // LOG(INFO) << "encode_size: " << encode_size;
+
+    // for (int i = 0; i < info.redundancy_cnt; ++i) {
+    //     data[i] = NULL;
+    // }
+    // codec_.Decode(data, type, encode_size);
+    // for (int i = 0; i < info.data_cnt; ++i) {
+    //     uint8_t* temp = new uint8_t[(packets[i]->data_packet()).ByteSizeLong()];
+    //     packets[i]->data_packet().SerializeToArray(temp, packets[i]->data_packet().ByteSizeLong());
+    //     CHECK_EQ(memcmp(data[i], temp, packets[i]->data_packet().ByteSizeLong()), 0);
+    //     DataPacket p;
+    //     p.ParseFromArray(data[i], packets[i]->data_packet().ByteSizeLong());
+    //     CHECK_EQ(p.DebugString(), packets[i]->data_packet().DebugString());
+    // }
 
     // 无法直接将Encode的数据直接作为DataPacket发送出去
     // 因为DataPacket.ParseFromArray()有可能失败？ TODO, 即便成功了，也要在DataPacket中添加一个长度， max_length, 提供给接收端作为decode_size
@@ -92,6 +107,9 @@ void SWorker::EncodeFecOnce(std::list<Packet*>& rtn) {
         p->set_fec_index(i);
         p->set_fec_type(type);
         packets[i] = p;
+        std::string s = p->data_packet().data();
+        CHECK_EQ(s.size(), encode_size);
+        CHECK_EQ(memcmp(data[i], s.data(), encode_size), 0);
     }
 
     for(int i = 0; i < packets.size(); ++i) {

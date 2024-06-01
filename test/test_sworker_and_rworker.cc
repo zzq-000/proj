@@ -4,7 +4,6 @@
 #include "transport/packet.pb.h"
 #include "transport/transport_util.h"
 
-
 TEST(SWorkerAndRWorker, Basic) {
     Config config = Config::GetDefaultConfig();
     config.fec_type = RandomFecType();
@@ -35,7 +34,7 @@ TEST(SWorkerAndRWorker, Basic) {
             EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());
         }
     }
-    GTEST_LOG_(INFO) << info.type;
+    // GTEST_LOG_(INFO) << info.type;
 
     std::list<DataPacket*> messages;
 
@@ -43,7 +42,7 @@ TEST(SWorkerAndRWorker, Basic) {
     cnt = 0;
     int loss_rate = 100;
     for (Packet *p : pkts) {
-        GTEST_LOG_(INFO) << p->fec_index() << " " << p->data_packet().ByteSizeLong();
+        // GTEST_LOG_(INFO) << p->fec_index() << " " << p->data_packet().ByteSizeLong();
         if (cnt < info.data_cnt) {
             if (loss < info.redundancy_cnt) {
                 if (rand() % 100 < loss_rate) {

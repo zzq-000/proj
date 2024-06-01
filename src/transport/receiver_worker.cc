@@ -1,6 +1,6 @@
 #include "receiver_worker.h"
 #include "util/timestamp.h"
-
+#include <google/protobuf/message.h>
 RWorker::RWorker(Config config): 
     config_(config), cache_(), codec_(), 
     next_submit_seq_(0), last_submit_time_(0), received_first_(false) { }
@@ -10,7 +10,7 @@ RWorker::RWorker(Config config):
 
 // TODO, 如何触发nack
 void RWorker::GetApplicationMessages(const Packet& packet, std::list<DataPacket*>& rtn) {
-    LOG(ERROR) << packet.fec_index();
+    // LOG(ERROR) << packet.fec_index() << " " << packet.ByteSizeLong();
     cache_.CachePacket(packet);
     FecType type = packet.fec_type();
     FecInfo info = GetInfoAboutFEC(type);
@@ -77,6 +77,7 @@ void RWorker::GetApplicationMessages(const Packet& packet, std::list<DataPacket*
             }
             assert(decode_size != 0);
             std::vector<void*> data(info.TotalCount());
+            memset(buffer_, 0, sizeof(buffer_));
             for (uint64_t i = start_seq; i < start_seq + info.TotalCount(); ++i) {
                 Packet* p = cache_.FindPacket(i);
                 if (p) {
@@ -92,7 +93,6 @@ void RWorker::GetApplicationMessages(const Packet& packet, std::list<DataPacket*
                     data[(i - start_seq)] = NULL;
                 }
             }
-            LOG(INFO) << "decode_size: " << decode_size;
             bool decode_ans = codec_.Decode(data, type, decode_size);
             DCHECK_EQ(decode_ans, true) << "failed to decode data";
             for (uint64_t i = start_seq; i < start_seq + info.data_cnt; ++i) {
@@ -101,10 +101,16 @@ void RWorker::GetApplicationMessages(const Packet& packet, std::list<DataPacket*
                     rtn.push_back(const_cast<DataPacket*>(&(p->data_packet())));
                 }else {
                     std::unique_ptr<DataPacket> ptr = std::make_unique<DataPacket>();
-                    // LOG(INFO) << i << " " << i - start_seq;
-                    ptr->ParseFromArray(data[i - start_seq], decode_size);
+                    // LOG(INFO) << i << " " << i - start_seq << " " << data[i - start_seq];
+                    google::protobuf::io::ArrayInputStream array_input_stream(data[i - start_seq], decode_size);
+                    google::protobuf::io::CodedInputStream coded_input_stream(&array_input_stream);
+                    uint32_t real_len = 0;
+                    coded_input_stream.ReadTag();
+                    coded_input_stream.ReadVarint32(&real_len);
+                    // LOG(INFO) << real_len;
+                    ptr->ParseFromArray(data[i - start_seq], real_len);
                     // LOG(INFO) << ptr->len();
-                    assert(ptr->data().size() >= ptr->len());
+                    // assert(ptr->data().size() >= ptr->len());
 
                     // ptr->set_len()
                     Packet* tmp_ptr = cache_.GetNextPlaceToCache(i);

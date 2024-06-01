@@ -14,6 +14,7 @@ void RWorker::GetApplicationMessages(const Packet& packet, std::list<DataPacket*
     cache_.CachePacket(packet);
     FecType type = packet.fec_type();
     FecInfo info = GetInfoAboutFEC(type);
+    LOG(INFO) << "Received a packet, seq: " << packet.seq_num() << ", fec_type: " << info.type << ", fec_index: " << packet.fec_index();
 
     if (type == FecType::FEC_NONE) {
         Packet* p = cache_.FindPacket(packet.seq_num());

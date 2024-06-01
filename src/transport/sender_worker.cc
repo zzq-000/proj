@@ -2,7 +2,7 @@
 #include "util/timestamp.h"
 
 SWorker::SWorker(Config config)
-    :cache_(), config_(config), seq_num_(0), codec_(), to_fec_encode_() {
+    :cache_(10000), config_(config), seq_num_(0), codec_(), to_fec_encode_() {
 }
 
 Packet* SWorker::RegisterDataPacket(const DataPacket& packet) {

@@ -15,7 +15,6 @@ private:
     std::list<std::pair<uint64_t, uint64_t>> to_fec_encode_;
     uint8_t buffer_[kMaxPayloadLen * kMaxFecTotalPackets];
 
-    void ClearFec(std::list<Packet*>& rtn);
     void EncodeFecOnce(std::list<Packet*>& rtn);
     Packet* RegisterDataPacket(const DataPacket& packet);
     Packet* RegisterDataPacket(void* buffer, int len);
@@ -27,7 +26,8 @@ public:
 
     inline void SetConfig(const Config&);
 
-    void RegisterPackets(const DataPacket& packet, std::list<Packet*>&);
+    void ClearFec(std::list<Packet*>&);
+    void RegisterPackets(const DataPacket&, std::list<Packet*>&);
 
-    void HandleReceive(const Packet& packet, std::list<Packet*>&);
+    void HandleReceive(const Packet&, std::list<Packet*>&);
 };

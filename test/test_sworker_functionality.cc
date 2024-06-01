@@ -3,6 +3,9 @@
 #include "transport/sender_worker.h"
 #include "transport/transport_util.h"
 
+/*如果packet_cache设置得过小， 则会导致测试用例不通过， 
+因为std::list<Packtet*>里面的元素都是指向packet_cache里面的指针
+一旦std::list的大小超过packet_cache大小， 则会导致部分指针失效*/
 
 TEST(SWorker, RegisterPackets_without_FEC) {
     srand(time(NULL));
@@ -207,37 +210,70 @@ TEST(SWorker, RegisterPackets_with_FEC_decode) {
         p.ParseFromArray(data[i], history[i].ByteSizeLong());
         EXPECT_EQ(p.DebugString(), history[i].DebugString());
     }
-    // for (int i = info.data_cnt; i < info.TotalCount(); ++i) {
-    //     for (int j = 0; j < encode_size; ++j) {
-    //         uint8_t* array = (uint8_t*)(data[i]);
-    //         if (array[j] != cache[i]->data_packet().data()[j]) {
-    //             GTEST_LOG_(INFO) << j;
-    //         }
-    //     }
-    //     // EXPECT_EQ(memcmp(data[i], cache[i]->data_packet().data().data(), encode_size), 0);
-    // }
-    // std::vector<Packet*> cache;
-    // for (Packet* p : pkts) {
-    //     cache.push_back(p);
-    //     if (cnt < info.redundancy_cnt) {
-    //         data[cnt] = NULL;
-    //     }else {
-    //         if (cnt < info.data_cnt) {
-    //             p->SerializeToArray(buffer + cnt * encode_size, p->data_packet().ByteSizeLong());
-    //         }else {
-    //             memcpy(buffer + cnt * encode_size, p->data_packet().data().data(), p->data_packet().data().size());
-    //         }
-    //         data[cnt] = buffer + cnt * encode_size;
-    //     }
-    //     cnt++;
-    // }
-    // BlockFecCodec codec;
-    // codec.Decode(data, config.fec_type, encode_size);
+}
 
-    // for (int i = 0; i < info.data_cnt; ++i) {
-    //     DataPacket p;
-    //     p.ParseFromArray(data[i], cache[i]->data_packet().ByteSizeLong());
-    //     EXPECT_EQ(p.DebugString(), cache[i]->data_packet().DebugString());
-    // }
+TEST(SWorker, Change_FecType) {
+    srand(3);
+    Config config = Config::GetDefaultConfig();
+    config.fec_type = FecType::FEC_NONE;
+
+
+    SWorker sworker(config);
+
+    uint64_t start_seq_num = RandomSeqNum();
+    std::vector<DataPacket> history;
+    // rand();
+    int fec_none_packets = rand() % 1000 + 100;
+    // int mean = rand() % 1000 + 100;
+    // int fec_none_packets = 100;
+
+    GTEST_LOG_(INFO) << "fec_none_packets: " << fec_none_packets;
+    std::list<Packet*> pkts;
+    for (int i = 0; i < fec_none_packets; ++i) {
+        DataPacket p = RandomDataPacket();
+        history.push_back(p);
+        sworker.RegisterPackets(p, pkts);
+        EXPECT_EQ(pkts.size(), i + 1);
+    }
+
+    int cnt = 0;
+    for (Packet* p : pkts) {
+        if (cnt < fec_none_packets) {
+            EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());
+        }
+    }
+    // GTEST_LOG_(INFO) << info.type;
+    FecType type = RandomFecType();
+    config.fec_type = type;
+    sworker.SetConfig(config);
+    FecInfo info = GetInfoAboutFEC(type);
+    int fec_type_packets = rand() % 1000 + 100;
+    GTEST_LOG_(INFO) << "fec_type: " << info.type << ", fec packets: "<< fec_type_packets;
+
+    for (int i = 0; i < info.data_cnt; ++i) {
+        DataPacket p = RandomDataPacket();
+        history.push_back(p);
+        sworker.RegisterPackets(p, pkts);
+    }
+    sworker.ClearFec(pkts);
+    EXPECT_EQ((pkts.size() - fec_none_packets) % info.TotalCount(), 0);
+    GTEST_LOG_(INFO) << pkts.size() - fec_none_packets;
+    cnt = 0;
+    for (Packet* p : pkts) {
+        if (cnt < fec_none_packets) {
+            EXPECT_EQ(p->fec_type(), FecType::FEC_NONE);
+            EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());
+        }else {
+            EXPECT_EQ(p->fec_type(), type);
+            if (p->fec_index() < info.data_cnt) {
+                if (cnt < fec_none_packets + info.data_cnt) {
+                    EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());  
+                }else {
+                    DataPacket tmp;
+                    EXPECT_EQ(p->data_packet().DebugString(), tmp.DebugString());
+                }
+            }
+        }
+    }
 
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include <cstdint>
 #include <cstring>
 #include <cstdlib>
@@ -80,7 +81,7 @@ class LossStat{
     };
     const static int kRecordLen = 60;
     Record data[kRecordLen];
-
+public:
     LossStat() {
         memset(data, 0, sizeof(data));
     }

@@ -24,7 +24,9 @@ private:
 public:
     SWorker(Config config);
 
-    inline void SetConfig(const Config&);
+    inline void SetConfig(const Config& config) {
+        config_ = config;
+    }
 
     void ClearFec(std::list<Packet*>&);
     void RegisterPackets(const DataPacket&, std::list<Packet*>&);

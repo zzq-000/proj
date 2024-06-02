@@ -15,9 +15,7 @@ Packet* SWorker::RegisterDataPacket(const DataPacket& packet) {
     p->set_seq_num(seq_num_++);
     return p;
 }
-inline void SWorker::SetConfig(const Config& config) {
-    config_ = config;
-}
+
 Packet* SWorker::RegisterDataPacket(void* buffer, int len) {
     Packet* p = cache_.GetNextPlaceToCache(seq_num_);
     std::unique_ptr<DataPacket> data = std::make_unique<DataPacket>();

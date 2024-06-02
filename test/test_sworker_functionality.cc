@@ -227,7 +227,7 @@ TEST(SWorker, Change_FecType) {
     // int mean = rand() % 1000 + 100;
     // int fec_none_packets = 100;
 
-    GTEST_LOG_(INFO) << "fec_none_packets: " << fec_none_packets;
+    // GTEST_LOG_(INFO) << "fec_none_packets: " << fec_none_packets;
     std::list<Packet*> pkts;
     for (int i = 0; i < fec_none_packets; ++i) {
         DataPacket p = RandomDataPacket();
@@ -244,11 +244,11 @@ TEST(SWorker, Change_FecType) {
     }
     // GTEST_LOG_(INFO) << info.type;
     FecType type = RandomFecType();
-    config.fec_type = type;
+    config.fec_type = type;    
     sworker.SetConfig(config);
     FecInfo info = GetInfoAboutFEC(type);
     int fec_type_packets = rand() % 1000 + 100;
-    GTEST_LOG_(INFO) << "fec_type: " << info.type << ", fec packets: "<< fec_type_packets;
+    // GTEST_LOG_(INFO) << "fec_type: " << info.type << ", fec packets: "<< fec_type_packets;
 
     for (int i = 0; i < info.data_cnt; ++i) {
         DataPacket p = RandomDataPacket();
@@ -257,7 +257,7 @@ TEST(SWorker, Change_FecType) {
     }
     sworker.ClearFec(pkts);
     EXPECT_EQ((pkts.size() - fec_none_packets) % info.TotalCount(), 0);
-    GTEST_LOG_(INFO) << pkts.size() - fec_none_packets;
+    // GTEST_LOG_(INFO) << pkts.size() - fec_none_packets;
     cnt = 0;
     for (Packet* p : pkts) {
         if (cnt < fec_none_packets) {

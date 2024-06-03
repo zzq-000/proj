@@ -17,7 +17,7 @@ def main():
     
 
     # 生成 6 个不同的 trace
-    for i, params in enumerate(parameters):
+    for params in parameters:
         # 日志文件前缀作为程序参数
         tmp = "_".join(params)
         log_file_prefix = f"trace_{tmp}"

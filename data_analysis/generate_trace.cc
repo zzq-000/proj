@@ -11,12 +11,13 @@ int main(int argc, char** argv) {
     FLAGS_minloglevel = google::INFO;
 
     // 可选：设置日志输出级别，默认为 INFO
+    // LOG(INFO) << std::atof(argv[2]) << " " << std::atof(argv[3]) << " " << std::atof(argv[4]) << " " << " " << std::atof(argv[5]);
     GEChannel channel(std::atof(argv[2]), std::atof(argv[3]), std::atof(argv[4]), std::atof(argv[5]), time(NULL));
     uint64_t now = timestamp_ms();
     uint64_t duration = 60 * 1000;
 
     while (timestamp_ms() - now < duration) {
-        LOG(INFO) << !channel.IsLossThisRound();
+        LOG(INFO) << channel.IsReceiveThisRound();
         channel.Transition();
     }
     google::ShutdownGoogleLogging();

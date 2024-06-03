@@ -14,6 +14,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/lib)
 # add_subdirectory(third_party)
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(data_analysis)
 
 # 定义预处理器宏
 # add_definitions(-DGOOGLE_GLOG_DLL_DECL=)

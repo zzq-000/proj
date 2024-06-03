@@ -1,17 +1,17 @@
 #include "ge_channel.h"
 
-bool GEChannel::is_received()
+bool GEChannel::IsLossThisRound()
 {
   float drop_draw = distribution_(generator_);
   if (bad_state_) {
-    return drop_draw >= p_loss_bad_;
+    return drop_draw <= p_loss_bad_;
   }
   else {
-    return drop_draw >= p_loss_good_;
+    return drop_draw <= p_loss_good_;
   }
 }
 
-void GEChannel::transition()
+void GEChannel::Transition()
 {
   float transition_draw = distribution_(generator_);
   if (bad_state_) {

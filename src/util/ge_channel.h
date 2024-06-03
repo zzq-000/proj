@@ -15,11 +15,12 @@ public:
     distribution_ = std::uniform_real_distribution<float>(0.0, 1.0);
   }
 
-  bool is_received();
+  bool IsLossThisRound();
 
-  void transition();
+  void Transition();
 
-  bool get_state() { return bad_state_;}
+  bool IsBadState() { return bad_state_;}
+  bool IsGoodState() { return !bad_state_;}
 
 private:
   float p_good_to_bad_;

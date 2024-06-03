@@ -8,7 +8,7 @@ TEST(test_ge, test_good_bad_transition_0_prob)
 {
   GEChannel gE(0,0,0,0,0);
   for (uint64_t j = 0; j < 10000; j++) {
-    gE.IsLossThisRound();
+    gE.IsReceiveThisRound();
     EXPECT_FALSE(gE.IsBadState());
   }
 }
@@ -90,7 +90,7 @@ TEST(test_ge, test_loss_bad_0_prob)
   GEChannel gE(p_good_to_bad,p_bad_to_good,p_loss_good,p_loss_bad,seed);
   for (uint64_t j = 0; j < num_trials; j++) {
     gE.Transition();
-    EXPECT_TRUE(gE.IsLossThisRound());
+    EXPECT_TRUE(gE.IsReceiveThisRound());
   }
 }
 
@@ -105,7 +105,7 @@ TEST(test_ge, test_loss_bad_1_prob)
   GEChannel gE(p_good_to_bad,p_bad_to_good,p_loss_good,p_loss_bad,seed);
   for (uint64_t j = 0; j < num_trials; j++) {
     gE.Transition();
-    EXPECT_FALSE(gE.IsLossThisRound());
+    EXPECT_FALSE(gE.IsReceiveThisRound());
   }
 
 }
@@ -122,7 +122,7 @@ TEST(test_ge, test_loss_bad_half_prob)
   float count = 0;
   for (uint64_t j = 0; j < num_trials; j++) {
     gE.Transition();
-    count += gE.IsLossThisRound();
+    count += gE.IsReceiveThisRound();
   }
   EXPECT_GE(count, num_trials * .7);
   EXPECT_LE(count, num_trials * .8);
@@ -139,7 +139,7 @@ TEST(test_ge, test_loss_good_0_prob)
   GEChannel gE(p_good_to_bad,p_bad_to_good,p_loss_good,p_loss_bad,seed);
   for (uint64_t j = 0; j < num_trials; j++) {
     gE.Transition();
-    EXPECT_TRUE(gE.IsLossThisRound());
+    EXPECT_TRUE(gE.IsReceiveThisRound());
   }
 }
 
@@ -154,7 +154,7 @@ TEST(test_ge, test_loss_good_1_prob)
   GEChannel gE(p_good_to_bad,p_bad_to_good,p_loss_good,p_loss_bad,seed);
   for (uint64_t j = 0; j < num_trials; j++) {
     gE.Transition();
-    EXPECT_FALSE(gE.IsLossThisRound());
+    EXPECT_FALSE(gE.IsReceiveThisRound());
   }
 }
 
@@ -169,7 +169,7 @@ TEST(test_ge, test_loss_good_half_prob)
   GEChannel gE(p_good_to_bad,p_bad_to_good,p_loss_good,p_loss_bad,seed);
   for (uint64_t j = 0; j < num_trials; j++) {
     gE.Transition();
-    EXPECT_TRUE(gE.IsLossThisRound());
+    EXPECT_TRUE(gE.IsReceiveThisRound());
   }
 }
 
@@ -184,14 +184,14 @@ TEST(test_ge, test_seed)
   GEChannel gE(p_good_to_bad,p_bad_to_good,p_loss_good,p_loss_bad,seed);
   vector<bool> first_states;
   for (uint64_t j = 0; j < num_trials; j++) {
-    gE.IsLossThisRound();
+    gE.IsReceiveThisRound();
     gE.Transition();
     first_states.push_back(gE.IsBadState());
   }
   GEChannel gE2(p_good_to_bad,p_bad_to_good,p_loss_good,p_loss_bad,seed);
   vector<bool> second_states;
   for (uint64_t j = 0; j < num_trials; j++) {
-    gE2.IsLossThisRound();
+    gE2.IsReceiveThisRound();
     gE2.Transition();
     second_states.push_back(gE2.IsBadState());
   }

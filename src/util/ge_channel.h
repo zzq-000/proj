@@ -16,7 +16,7 @@ public:
   }
 
   bool IsLossThisRound();
-
+  bool IsReceiveThisRound();
   void Transition();
 
   bool IsBadState() { return bad_state_;}

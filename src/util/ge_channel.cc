@@ -11,6 +11,10 @@ bool GEChannel::IsLossThisRound()
   }
 }
 
+bool GEChannel::IsReceiveThisRound() {
+  return !IsLossThisRound();
+}
+
 void GEChannel::Transition()
 {
   float transition_draw = distribution_(generator_);

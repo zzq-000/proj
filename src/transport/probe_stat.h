@@ -3,7 +3,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <algorithm>
+#include <queue>
 #include <cmath>
+#include <glog/logging.h>
 class ProbeStat{
     static const int kProbeRecordCount = 300;
 
@@ -72,35 +74,67 @@ class ProbeStat{
 };
 
 class LossStat{
+    static constexpr int report_duration_ms = 1000;
     struct Record{
         uint64_t second;
         uint32_t raw_packet_count;
         uint32_t raw_packet_loss_count;
         uint32_t data_packet_count;
         uint32_t data_packet_loss_count;
+
+        std::pair<double, double> CalculateLoss() const {
+            double raw_packet_loss = raw_packet_count == 0 ? 0 : (double)raw_packet_loss_count / raw_packet_count;
+            double data_packet_loss = data_packet_count == 0 ? 0 : (double)data_packet_loss_count / data_packet_count;
+            return {raw_packet_loss, data_packet_loss};
+        }
+        std::string ToString() const {
+            std::stringstream ss;
+
+            ss << "second: " << second << ", raw_packet_count: " << raw_packet_count << ", raw_packet_loss_count: " << raw_packet_loss_count \
+                << ", data_packet_count: " << data_packet_count << ", data_packet_loss_count: " << data_packet_loss_count;
+            auto loss = CalculateLoss();
+            ss << ", raw_packet_loss: " << loss.first << ", data_packet_loss: " << loss.second; 
+            return ss.str();
+        }
+        friend std::ostream& operator<< (std::ostream& os, const Record& record) {
+            os << record.ToString();
+            return os;
+        }
     };
     const static int kRecordLen = 60;
-    Record data[kRecordLen];
+    Record data_[kRecordLen];
+    uint64_t last_report_second_;
 public:
     LossStat() {
-        memset(data, 0, sizeof(data));
+        ClearState();
+        last_report_second_ = 0;
     }
-
+    void ClearState() {
+        memset(data_, 0, sizeof data_);
+    }
     void RegisterAPacket(uint64_t ts, bool received, bool processed, bool is_redundant) {
         uint64_t second = ts / 1000;
-        int index = second % kRecordLen;
-        if (data[index].second != second) {
-            data[index].second = second;
-            data[index].raw_packet_count = 0;
-            data[index].raw_packet_loss_count = 0;
-            data[index].data_packet_count = 0;
-            data[index].data_packet_loss_count = 0;
+        if (last_report_second_ == 0) {
+            last_report_second_ = second;
+        }else if (last_report_second_ != second) {
+            int tmp_index = last_report_second_ % kRecordLen;
+            DCHECK_EQ(data_[tmp_index].second, last_report_second_);
+            LOG(INFO) << data_[tmp_index];
+            last_report_second_ = second;
         }
-        data[index].raw_packet_count++;
-        data[index].raw_packet_loss_count += (received ? 0 : 1);
+        int index = second % kRecordLen;
+        if (data_[index].second != second) {
+            data_[index].second = second;
+            data_[index].raw_packet_count = 0;
+            data_[index].raw_packet_loss_count = 0;
+            data_[index].data_packet_count = 0;
+            data_[index].data_packet_loss_count = 0;
+        }
+        data_[index].raw_packet_count++;
+        data_[index].raw_packet_loss_count += (received ? 0 : 1);
         if (!is_redundant) { // Todo
-            data[index].data_packet_count++;
-            data[index].data_packet_loss_count += (processed ? 0 : 1);
+            data_[index].data_packet_count++;
+            data_[index].data_packet_loss_count += (processed ? 0 : 1);
         }
     }
     
@@ -114,11 +148,11 @@ public:
         int total_data_packet_loss_count = 0;
 
         for (int i = 0; i < kRecordLen; ++i) {
-            if (data[i].second >= start_second && data[i].second <= end_second) {
-                total_raw_packet_count += data[i].raw_packet_count;
-                total_raw_packet_loss_count += data[i].raw_packet_loss_count;
-                total_data_packet_count += data[i].data_packet_count;
-                total_data_packet_loss_count += data[i].data_packet_loss_count;
+            if (data_[i].second >= start_second && data_[i].second <= end_second) {
+                total_raw_packet_count += data_[i].raw_packet_count;
+                total_raw_packet_loss_count += data_[i].raw_packet_loss_count;
+                total_data_packet_count += data_[i].data_packet_count;
+                total_data_packet_loss_count += data_[i].data_packet_loss_count;
             }
         }
         double raw_packet_loss = total_raw_packet_count == 0 ? 0 : (double)total_raw_packet_loss_count / total_raw_packet_count;
@@ -127,3 +161,5 @@ public:
     }
 
 };
+
+

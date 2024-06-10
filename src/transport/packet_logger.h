@@ -16,7 +16,7 @@ public:
 
 class PacketLogger{
 public:
-    static constexpr int kRecordsNum = 10000;
+    static constexpr int kRecordsNum = 100000;
     static constexpr uint64_t kCleanDurationMs = 500;
 private:
     PacketRecord* cache_;
@@ -43,8 +43,11 @@ public:
     
     // 提交给应用层， 将数据包提取出来给应用层的时候， 由使用者调用
     void SetProcessed(uint64_t seq_num);
+
+    // 统计过去1min的丢包率， 除此之外， loss_stat每秒钟会自动log一次丢包情况
     std::pair<double, double> GetLossRate() const;
 
+    std::list<uint64_t> GetNackSeq() const;
 
     ~PacketLogger();
 };

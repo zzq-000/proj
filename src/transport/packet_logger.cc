@@ -42,7 +42,6 @@ void PacketLogger::SetProcessed(uint64_t seq_num) {
 void PacketLogger::ReclaimSeq() {
     uint64_t now = timestamp_ms();
     uint64_t window_right_seq = window_left_seq_num_ + size_;
-    int cnt = 0;
     while (window_left_seq_num_ < window_right_seq) {
         int index = SeqNumToIndex(window_left_seq_num_);
         DCHECK_EQ(cache_[index].seq_num, window_left_seq_num_);
@@ -51,14 +50,11 @@ void PacketLogger::ReclaimSeq() {
                 cache_[index].processed, cache_[index].is_redundant);
             window_left_seq_num_++;
             size_ --;
-            cnt ++;
         }else {
             break;
         }
     }
-    if (cnt) {
-        LOG(INFO) << "reclaim happened, " << "reclaimed " << cnt << " seqs";
-    }
+
 }
 
 // 1. 清理过期的序列号
@@ -84,6 +80,7 @@ void PacketLogger::ReceivePacket(const Packet& packet, uint32_t arq_wait_time_ms
         // 扩大接收窗口
         for (uint64_t seq = window_left_seq_num_ + size_; seq <= seq_num; seq++) {
             InitRecord(seq, now, arq_wait_time_ms);
+            size_++;
         }
     }
     SetReceived(seq_num);

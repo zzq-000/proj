@@ -74,7 +74,10 @@ class ProbeStat{
 };
 
 class LossStat{
+private:
     static constexpr int report_duration_ms = 1000;
+    static constexpr int BURST_LOST_SIZE = 6;
+    static constexpr int GUARD_SPACE_SIZE = 10;
     struct Record{
         uint64_t second;
         uint32_t raw_packet_count;
@@ -90,11 +93,19 @@ class LossStat{
         std::string ToString() const {
             std::stringstream ss;
 
-            ss << "second: " << second << ", raw_packet_count: " << raw_packet_count << ", raw_packet_loss_count: " << raw_packet_loss_count \
+            ss << "log_second: " << second << ", raw_packet_count: " << raw_packet_count << ", raw_packet_loss_count: " << raw_packet_loss_count \
                 << ", data_packet_count: " << data_packet_count << ", data_packet_loss_count: " << data_packet_loss_count;
             auto loss = CalculateLoss();
             ss << ", raw_packet_loss: " << loss.first << ", data_packet_loss: " << loss.second; 
+            ss << ", report_interval: " << (report_duration_ms / 1000) << "s";
             return ss.str();
+        }
+        Record& operator+=(const Record& rhs) {
+            this->raw_packet_count += rhs.raw_packet_count;
+            this->raw_packet_loss_count += rhs.raw_packet_loss_count;
+            this->data_packet_count += rhs.data_packet_count;
+            this->data_packet_loss_count += rhs.data_packet_loss_count;
+            return *this;
         }
         friend std::ostream& operator<< (std::ostream& os, const Record& record) {
             os << record.ToString();
@@ -104,23 +115,106 @@ class LossStat{
     const static int kRecordLen = 60;
     Record data_[kRecordLen];
     uint64_t last_report_second_;
+    std::vector<bool> received_status_;
+
+    // 前6个表示burst loss, 后10个表示guard space， 大于等于10的合并在一起
+    std::vector<int> GetBurstLossAndGuardSpace() {
+        
+        std::vector<int> ret(BURST_LOST_SIZE + GUARD_SPACE_SIZE, 0);
+        auto calc_burst_index = [](int burst) {
+            return std::min(BURST_LOST_SIZE, burst) - 1;
+        };
+        auto calc_guard_index = [](int guard) {
+            return std::min(GUARD_SPACE_SIZE, guard) + BURST_LOST_SIZE - 1;
+        };
+
+        bool loss_happened_before = false;
+        int burst_length = 0;
+        int guard_space = 0;
+        bool is_first_guard_space = true;
+        bool is_first_burst_lost = true;
+        for (int val : received_status_) {
+            if (val == false) {
+                if (loss_happened_before == false) {
+                    if (guard_space) {
+                        if (is_first_guard_space) {
+                            is_first_guard_space = false;
+                        }else {
+                            ret[calc_guard_index(guard_space)]++;
+                        }
+                        guard_space = 0;
+                    }
+                    loss_happened_before = true;
+                    burst_length ++;
+                }else {
+                    burst_length ++;
+                }
+            }
+            else {
+                if (loss_happened_before) {
+                    if (burst_length) {
+                        if (is_first_burst_lost) {
+                            is_first_burst_lost = false;
+                        } else {
+                            ret[calc_burst_index(burst_length)]++;
+                        }
+                        burst_length = 0;
+                    }
+                    loss_happened_before = false;
+                    guard_space += 1;
+                }else {
+                    guard_space += 1;
+                }
+            }
+        }
+        received_status_.clear();
+        return ret;
+    }
 public:
     LossStat() {
         ClearState();
         last_report_second_ = 0;
+        received_status_.reserve(100000);
     }
     void ClearState() {
         memset(data_, 0, sizeof data_);
     }
     void RegisterAPacket(uint64_t ts, bool received, bool processed, bool is_redundant) {
         uint64_t second = ts / 1000;
+        received_status_.push_back(received);
         if (last_report_second_ == 0) {
             last_report_second_ = second;
-        }else if (last_report_second_ != second) {
-            int tmp_index = last_report_second_ % kRecordLen;
-            DCHECK_EQ(data_[tmp_index].second, last_report_second_);
-            LOG(INFO) << data_[tmp_index];
+        }else if (second > last_report_second_ && second - last_report_second_ >= (report_duration_ms / 1000)) {
+            uint64_t i = last_report_second_;
+            Record tmp{second, 0, 0, 0, 0};
+            while (i != second) {
+                int tmp_index = i % kRecordLen;
+                DCHECK_EQ(data_[tmp_index].second, i);
+                tmp += data_[tmp_index];
+                ++i;
+            }
+            std::stringstream ss;
+            ss << tmp;
+            auto ret = GetBurstLossAndGuardSpace();
+            int total_burst = 0;
+            int total_guard = 0;
+            for (int i = 0; i < BURST_LOST_SIZE; ++i) {
+                total_burst += ret[i];
+                std::string burst_length_str = ((i < BURST_LOST_SIZE - 1) ? 
+                    (std::to_string(i + 1)) : (">=" + std::to_string(BURST_LOST_SIZE)));
+                ss << ", burst length: " << burst_length_str << ", happended times: " << ret[i];
+            }
+            ss << ", total burst: " << total_burst;
+            for (int i = BURST_LOST_SIZE; i < BURST_LOST_SIZE + GUARD_SPACE_SIZE; ++i) {
+                total_guard += ret[i];
+                std::string guard_space_str = ((i < BURST_LOST_SIZE + GUARD_SPACE_SIZE - 1) ?
+                    (std::to_string(i - GUARD_SPACE_SIZE + 1)) : (">=") + std::to_string(GUARD_SPACE_SIZE));
+                ss << ", guard space: " << guard_space_str << ", happended times: " << ret[i];
+            }
+            ss << ", total guard: " << total_guard;
+            LOG(INFO) << ss.str();
             last_report_second_ = second;
+
         }
         int index = second % kRecordLen;
         if (data_[index].second != second) {

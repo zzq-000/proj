@@ -47,7 +47,6 @@ def Analysis(sequences: list[int]) -> tuple[dict[int:int], dict[int:int]]:
                         first_burst_lost = False
                     else:
                         burst_dict[burst_length] += 1
-                    burst_dict[burst_length] += 1
                     burst_length = 0
                 loss_happened_before = False
                 guard_space += 1

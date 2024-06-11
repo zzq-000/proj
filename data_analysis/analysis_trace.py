@@ -54,9 +54,34 @@ def Analysis(sequences: list[int]) -> tuple[dict[int:int], dict[int:int]]:
                 guard_space += 1
     # print(dict(burst_dict), dict(guard_dict))
     draw_burst_frequency_hist(burst_dict)
+    draw_burst_frequency_cdf(burst_dict)
     draw_guard_frequency_hist(guard_dict)
+    draw_guard_frequency_cdf(guard_dict)
     # return dict(burst_dict), dict(guard_dict)
 
+def draw_burst_frequency_cdf(data: dict[int, int]):
+    column = 'Burst Length'  
+    title = "Burst Length CDF"
+    df = pd.DataFrame(list(data.items()), columns=[column, 'Frequency'])
+    # 按 Burst Length 排序
+    df = df.sort_values(by=column)
+
+    # 计算累计频率
+    df['Cumulative Frequency'] = df['Frequency'].cumsum()
+
+    # 计算 CDF
+    df['CDF'] = df['Cumulative Frequency'] / df['Frequency'].sum()
+
+    # 绘制 CDF 图
+    plt.figure(figsize=(12, 6))
+    sns.lineplot(x='Burst Length', y='CDF', data=df, marker='o')
+    plt.xlabel('Burst Length')
+    plt.ylabel('CDF')
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(f"{trace_name}_burst_frequency_cdf.svg")
+    plt.close()
+    
 def draw_burst_frequency_hist(data: dict[int, int]): 
     column = 'Burst Length'  
     title = "Burst Length Distribution"
@@ -91,7 +116,31 @@ def draw_burst_frequency_hist(data: dict[int, int]):
     plt.xlabel(column)
     plt.ylabel('Percentage (%)')
     plt.title(title)
-    plt.savefig(f"{trace_name}_burst_distribution.png")
+    plt.savefig(f"{trace_name}_burst_distribution.svg")
+    plt.close()
+
+def draw_guard_frequency_cdf(data: dict[int, int]):
+    column = 'Guard Space'  
+    title = "Guard Space CDF"
+    df = pd.DataFrame(list(data.items()), columns=[column, 'Frequency'])
+    
+    df = df.sort_values(by=column)
+
+    # 计算累计频率
+    df['Cumulative Frequency'] = df['Frequency'].cumsum()
+
+    # 计算 CDF
+    df['CDF'] = df['Cumulative Frequency'] / df['Frequency'].sum()
+
+    # 绘制 CDF 图
+    plt.figure(figsize=(12, 6))
+    sns.lineplot(x=column, y='CDF', data=df, marker='o')
+    plt.xlabel(column)
+    plt.ylabel('CDF')
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(f"{trace_name}_guard_frequency_cdf.svg")
+    plt.close()
 
 def draw_guard_frequency_hist(data: dict[int, int]): 
     column = 'Guard Space'  
@@ -127,7 +176,8 @@ def draw_guard_frequency_hist(data: dict[int, int]):
     plt.xlabel(column)
     plt.ylabel('Percentage (%)')
     plt.title(title)
-    plt.savefig(f"{trace_name}_guard_space.png")
+    plt.savefig(f"{trace_name}_guard_space.svg")
+    plt.close()
 
 if __name__ == "__main__":
     # trace_name = sys.argv[1]

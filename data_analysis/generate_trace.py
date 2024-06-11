@@ -13,7 +13,7 @@ def main():
     executable = "/app/proj/build/bin/generate_trace"  # 替换为你的可执行文件路径
     log_dir = "/app/proj/data_analysis"
 
-    # good good_to_bad bad bad_to_good
+    # p_good->bad, p_bad_to_good, loss_good, loss_bad  
     
 
     # 生成 6 个不同的 trace

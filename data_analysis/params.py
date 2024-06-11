@@ -1,4 +1,5 @@
 parameters = [
+#   p_good->bad, p_bad_to_good, loss_good, loss_bad   
         ["0", "0", "0.02", "1"],
         ["0", "0", "0.05", "1"],
         ["0", "0", "0.08", "1"],

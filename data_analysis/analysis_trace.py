@@ -4,7 +4,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 from params import parameters
-
+from scipy.interpolate import PchipInterpolator
+import numpy as np
+import mplcursors
 trace_name = None
 def GetSeqence(filename:str) -> list[int]:
     sequences = []
@@ -72,13 +74,40 @@ def draw_burst_frequency_cdf(data: dict[int, int]):
     # 计算 CDF
     df['CDF'] = df['Cumulative Frequency'] / df['Frequency'].sum()
 
-    # 绘制 CDF 图
+    # 生成平滑的曲线
+    x = df[column]
+    y = df['CDF']
+    f = PchipInterpolator(x, y)
+    x_smooth = np.linspace(x.min(), x.max(), 500)
+    y_smooth = f(x_smooth)
+
+    # 绘制平滑的 CDF 图
     plt.figure(figsize=(12, 6))
-    sns.lineplot(x='Burst Length', y='CDF', data=df, marker='o')
-    plt.xlabel('Burst Length')
+    ax = sns.lineplot(x=x_smooth, y=y_smooth, marker='o')
+    plt.xlabel(column)
     plt.ylabel('CDF')
-    plt.title(title)
+    plt.title('Burst Length CDF')
     plt.grid(True)
+    # 标注 1%, 5%, 10%, 95% 分位点
+    percentiles = [0.05, 0.10, 0.95]
+    for p in percentiles:
+        x_perc = np.interp(p, y_smooth, x_smooth)
+        y_perc = p
+        plt.axvline(x=x_perc, linestyle='--', color='r')
+        plt.axhline(y=y_perc, linestyle='--', color='r')
+        plt.text(x_perc, y_perc, f'({x_perc:.2f}, {int(p*100)}%)', color='r', 
+                 verticalalignment='bottom', horizontalalignment='right')
+
+    # 添加交互功能
+    cursor = mplcursors.cursor(ax, hover=True)
+
+    @cursor.connect("add")
+    def on_add(sel):
+        sel.annotation.set(text=f"({sel.target[0]:.2f}, {sel.target[1]:.2f})",
+                           position=(0, 20),  # offset the text from the point
+                           textcoords="offset points",
+                           ha="center")
+
     plt.savefig(f"{trace_name}_burst_frequency_cdf.svg")
     plt.close()
     
@@ -132,13 +161,39 @@ def draw_guard_frequency_cdf(data: dict[int, int]):
     # 计算 CDF
     df['CDF'] = df['Cumulative Frequency'] / df['Frequency'].sum()
 
-    # 绘制 CDF 图
+    x = df[column]
+    y = df['CDF']
+    f = PchipInterpolator(x, y)
+    x_smooth = np.linspace(x.min(), x.max(), 500)
+    y_smooth = f(x_smooth)
+
+    # 绘制平滑的 CDF 图
     plt.figure(figsize=(12, 6))
-    sns.lineplot(x=column, y='CDF', data=df, marker='o')
+    ax = sns.lineplot(x=x_smooth, y=y_smooth, marker='o')
     plt.xlabel(column)
     plt.ylabel('CDF')
-    plt.title(title)
+    plt.title('Burst Length CDF')
     plt.grid(True)
+    # 标注 1%, 5%, 10%, 95% 分位点
+    percentiles = [0.05, 0.10, 0.95]
+    for p in percentiles:
+        x_perc = np.interp(p, y_smooth, x_smooth)
+        y_perc = p
+        plt.axvline(x=x_perc, linestyle='--', color='r')
+        plt.axhline(y=y_perc, linestyle='--', color='r')
+        plt.text(x_perc, y_perc, f'{int(p*100)}% ({x_perc:.2f}, {y_perc:.2f})', color='r', 
+                 verticalalignment='bottom', horizontalalignment='right')
+
+    # 添加交互功能
+    cursor = mplcursors.cursor(ax, hover=True)
+
+    @cursor.connect("add")
+    def on_add(sel):
+        sel.annotation.set(text=f"({sel.target[0]:.2f}, {sel.target[1]:.2f})",
+                           position=(0, 20),  # offset the text from the point
+                           textcoords="offset points",
+                           ha="center")
+
     plt.savefig(f"{trace_name}_guard_frequency_cdf.svg")
     plt.close()
 

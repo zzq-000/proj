@@ -250,7 +250,7 @@ TEST(SWorker, Change_FecType) {
     int fec_type_packets = rand() % 1000 + 100;
     // GTEST_LOG_(INFO) << "fec_type: " << info.type << ", fec packets: "<< fec_type_packets;
 
-    for (int i = 0; i < info.data_cnt; ++i) {
+    for (int i = 0; i < fec_type_packets; ++i) {
         DataPacket p = RandomDataPacket();
         history.push_back(p);
         sworker.RegisterPackets(p, pkts);
@@ -259,6 +259,7 @@ TEST(SWorker, Change_FecType) {
     EXPECT_EQ((pkts.size() - fec_none_packets) % info.TotalCount(), 0);
     // GTEST_LOG_(INFO) << pkts.size() - fec_none_packets;
     cnt = 0;
+    int tmp_cnt = 0;
     for (Packet* p : pkts) {
         if (cnt < fec_none_packets) {
             EXPECT_EQ(p->fec_type(), FecType::FEC_NONE);
@@ -266,12 +267,29 @@ TEST(SWorker, Change_FecType) {
         }else {
             EXPECT_EQ(p->fec_type(), type);
             if (p->fec_index() < info.data_cnt) {
-                if (cnt < fec_none_packets + info.data_cnt) {
                     EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());  
-                }else {
-                    DataPacket tmp;
-                    EXPECT_EQ(p->data_packet().DebugString(), tmp.DebugString());
                 }
+        }
+    }
+    history.clear();
+    pkts.clear();
+    for (int i = 0; i < info.data_cnt - 1; ++i) {
+        DataPacket p = RandomDataPacket();
+        history.push_back(p);
+        sworker.RegisterPackets(p, pkts);
+    }
+    sworker.ClearFec(pkts);
+    EXPECT_EQ(pkts.size(), info.TotalCount());
+    cnt = 0;
+    for (int i = 0; i < info.TotalCount(); ++i) {
+        Packet* p = pkts.front();
+        pkts.pop_front();
+        if (i < info.data_cnt) {
+            if (i < info.data_cnt - 1) {
+                EXPECT_EQ(p->data_packet().DebugString(), history.at(i).DebugString());
+            }else {
+                DataPacket tmp;
+                EXPECT_EQ(p->data_packet().DebugString(), tmp.DebugString());
             }
         }
     }

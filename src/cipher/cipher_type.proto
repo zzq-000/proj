@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+enum CipherType {
+    None = 0;
+    ChaCha20 = 1;
+    AES_GCM = 2;
+}

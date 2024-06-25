@@ -4,6 +4,11 @@
 #include "FEC/fec_util.h"
 #include <string>
 
+inline void FillRandomBytes(void* data, int len) {
+    for (int i = 0; i < len; ++i) {
+        ((uint8_t*)data)[i] = rand() % UINT8_MAX;
+    }
+}
 // 不会返回FEC_NONE
 inline FecType RandomFecType() {
     int total_kinds = 15;

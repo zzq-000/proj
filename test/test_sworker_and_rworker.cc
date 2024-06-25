@@ -67,3 +67,67 @@ TEST(SWorkerAndRWorker, Basic) {
     // }
     // GTEST_LOG_(INFO) << loss << " " << messages.size();
 }
+
+
+TEST(SWorkerAndRWorker, Change_FecType1) {
+    srand(time(NULL));
+    Config config = Config::GetDefaultConfig();
+    config.fec_type = FecType::FEC_NONE;
+
+
+    SWorker sworker(config);
+    RWorker rworker(config);
+
+    uint64_t start_seq_num = RandomSeqNum();
+    std::vector<DataPacket> history;
+
+    int fec_none_packets = rand() % 1000 + 100;
+
+    GTEST_LOG_(INFO) << "fec_none_packets: " << fec_none_packets;
+    std::list<Packet*> pkts;
+    for (int i = 0; i < fec_none_packets; ++i) {
+        DataPacket p = RandomDataPacket();
+        history.push_back(p);
+        sworker.RegisterPackets(p, pkts);
+        EXPECT_EQ(pkts.size(), i + 1);
+    }
+    int cnt = 0;
+    for (Packet* p : pkts) {
+        if (cnt < fec_none_packets) {
+            EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());
+        }
+    }
+    // GTEST_LOG_(INFO) << info.type;
+    FecType type = RandomFecType();
+    config.fec_type = type;
+    sworker.SetConfig(config);
+    FecInfo info = GetInfoAboutFEC(type);
+    int fec_type_packets = rand() % 1000 + 100;
+    GTEST_LOG_(INFO) << "fec_type: " << info.type << ", fec packets: "<< fec_type_packets;
+
+    for (int i = 0; i < fec_type_packets; ++i) {
+        DataPacket p = RandomDataPacket();
+        history.push_back(p);
+        sworker.RegisterPackets(p, pkts);
+    }
+    sworker.ClearFec(pkts);
+    EXPECT_EQ((pkts.size() - fec_none_packets) % info.TotalCount(), 0);
+    cnt = 0;
+    for (Packet* p : pkts) {
+        if (cnt < fec_none_packets) {
+            EXPECT_EQ(p->fec_type(), FecType::FEC_NONE);
+            EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());
+        }else {
+            EXPECT_EQ(p->fec_type(), type);
+            if (p->fec_index() < info.data_cnt) {
+                if (cnt < fec_none_packets + fec_type_packets) {
+                    EXPECT_EQ(p->data_packet().DebugString(), history.at(cnt++).DebugString());  
+                }else {
+                    DataPacket tmp;
+                    EXPECT_EQ(p->data_packet().DebugString(), tmp.DebugString());
+                }
+            }
+        }
+    }
+
+}
